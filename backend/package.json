@@ -1,0 +1,18 @@
+{
+  "name": "ygo-catalog",
+  "version": "1.0.0",
+  "description": "Catalogo",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ygo"
+  ],
+  "author": "Leonardo",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.2",
+    "mysql": "^2.15.0"
+  }
+}
