@@ -1,39 +1,24 @@
-import Database from './db_connection';
-
+const request = require('request');
 const express = require('express');
+const bodyParser = require('body-parser');
+const mysql = require('mysql');
 const app = express();
+
+app.use(bodyParser.urlencoded({ extended: true }));
+
+let con = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'ygo-catalog'
+});
+con.connect((err) => {
+  if(err) throw err;
+  console.log("Conexão com banco de dados!");
+});
+require('./routes/index')(app, con);
+require('./seeder')(request, con);
 
 app.listen(8000, () => {
   console.log("Servidor iniciado na porta 8000!");
-});
-
-//Get all cards
-app.route('/api/cards/get_all').get((req, res) => {
-
-});
-
-//Get card info by name
-app.route('/api/cards/:name').get((req, res) => {
-
-});
-
-//Get card info by it's number
-app.route('/api/cards/:number').get((req, res) => {
-
-});
-
-//Get latest 20 cards
-app.route('/api/cards/new').get((req, res) => {
-
-});
-
-
-//Get all set names
-app.route('/api/sets/get_all').get((req, res) => {
-
-});
-
-//Get set info by it's name
-app.route('/api/sets/:name').get((req, res) => {
-
 });
