@@ -11,7 +11,7 @@ module.exports = function(app, db){
 
   //Get card info by name
   app.route('/api/cards/:name').get((req, res) => {
-    db.query(`SELECT * FROM ${table} WHERE name = ?`, req.params.name, (err, rows) => {
+    db.query(`SELECT * FROM ${table} WHERE name = ?`, [req.params.name], (err, rows) => {
       if(err) throw err;
       res.send(rows);
     });
@@ -19,10 +19,10 @@ module.exports = function(app, db){
 
   //Get card info by it's number
   app.route('/api/cards/:number').get((req, res) => {
-    db.query(`SELECT * FROM ${table} WHERE number = ?`, req.params.number, (err, rows) => {
+    db.query(`SELECT * FROM ${table} WHERE number = ?`, [req.params.number], (err, rows) => {
       if(err) throw err;
       res.send(rows);
     });
   });
-  
+
 }

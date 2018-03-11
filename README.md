@@ -5,6 +5,8 @@ Este projeto visa catalogar de forma simples e intuitiva coleções da cartas de
 ####Passo a passo
 
 - Instalar [nodejs](https://nodejs.org/en/download/);
-- Entrar na pasta do projeto via linha de comando;
-- Executar o seguinte código:
-`$ node install`
+- Entrar na pasta backend via linha de comando;
+- Executar os seguintes comandos:
+  1.`$ node install`
+  2.`$ npm run migrate`
+  3.`$ npm run seed`
