@@ -5,6 +5,8 @@ Este projeto visa catalogar de forma simples e intuitiva coleções da cartas de
 ####Passo a passo
 
 - Instalar [nodejs](https://nodejs.org/en/download/);
+- Instalar [mysql](https://www.mysql.com/);
+- Criar um banco de dados chamado **ygo-catalog**;
 - Entrar na pasta backend via linha de comando;
 - Executar os seguintes comandos:
   1.`$ node install`

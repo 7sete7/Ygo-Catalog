@@ -17,7 +17,7 @@ con.connect((err) => {
   console.log("Conexão com banco de dados!");
 
   require('./routes/index')(app, con);
-  let db = require('./seeder')(con, rp);
+  let db = require('./database')(con, rp);
 
   app.listen(8000, () => {
     console.log("Servidor iniciado na porta 8000!");
@@ -25,9 +25,9 @@ con.connect((err) => {
 });
 
 module.exports.seed = function(){
-  require('./seeder')(con, rp).seed();
+  require('./database')(con, rp).seed();
 }
 
 module.exports.migrate = function(){
-  require('./seeder')(con, rp).migrate()
+  require('./database')(con, rp).migrate();
 }

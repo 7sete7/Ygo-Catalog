@@ -36,7 +36,7 @@ module.exports = function(con, rp) {
           let arrayCartas = Array.from(todasCartas, (carta) => {
             let arr = [];
             for(key in carta)
-              arr.push(carta[key]);
+              arr.push(carta[key] ? carta[key] : '');
             return arr;
           });
 
