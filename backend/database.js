@@ -2,6 +2,8 @@ let base_url = "https://www.ygohub.com/api";
 let cards = [];
 let totalCards;
 let current = 0;
+let terminou = 0;
+let totalLoop = 10;
 let todasCartas = [];
 let options = {
   url: `${base_url}/all_cards`,
@@ -15,6 +17,7 @@ module.exports = function(con, rp) {
 
   let tableName = 'cards';
 
+  // TODO: Tirar o slice do seed quando completo e ageitar o result.affectedRows
   return{
 
     seed: function(){
@@ -24,33 +27,30 @@ module.exports = function(con, rp) {
         cards = body['cards'].slice(0, 5);
         console.log('All cards');
 
-        let totalLoop = 10;
         totalCards = cards.length;
 
         for(let i = 0; i < totalLoop; i++){
           geting(rp);
         }
 
-        getFields(rp, false).then(fields => {
+        checkFlag(() => {
+          getFields(rp, false).then(fields => {
 
-          let arrayCartas = Array.from(todasCartas, (carta) => {
-            let arr = [];
-            for(key in carta)
-              arr.push(carta[key] ? carta[key] : '');
-            return arr;
+            let arrayCartas = [];
+            for(let carta of todasCartas)
+              arrayCartas.push(Object.values(carta));
+
+            con.query(`INSERT INTO ${tableName} (${fields}) VALUES ?`,
+             [arrayCartas], (err, result) => {
+              if(err)
+                return console.error(err);
+
+              console.log(`Table ${tableName} got seeded with ${result} rows!`);
+            });
           });
-
-
-
-          con.query(`INSERT INTO ${tableName} (${fields}) VALUES ?`,
-           [arrayCartas], (err, result) => {
-            if(err){
-              console.error(err);
-              return;
-            }
-
-            console.log(`Table ${tableName} got seeded with ${result} rows!`);
-          });
+        })
+        .catch((err) => {
+          console.log("Erro ->"+ err);
         });
 
       })
@@ -85,17 +85,24 @@ module.exports = function(con, rp) {
 
 function geting(rp){
   let nome = cards[current++];
-  console.log(nome);
   options['url'] = `${base_url}/card_info?name=${nome}`;
 
   if(current >= totalCards){
     console.log("Terminou");
+    terminou++;
     return;
   }
 
   rp(options)
   .then((body) => {
-    todasCartas.push(body['card']);
+    let aux = Object.assign({}, asKeys);
+    for(let k in aux){
+      body['card'].hasOwnProperty(k) ?
+      aux[k] = body.card[k] :
+      aux[k] = null;
+    }
+
+    todasCartas.push(aux);
     geting(rp);
   })
   .catch((err) => {
@@ -113,11 +120,51 @@ function getFields(rp, typing){
       let fields = "";
       for (var key in body['card']) {
         fields += key === 'legality' || key === 'releases'?
-        `${key}${typing ? ' json' : ''}, `:
-        `${key}${typing ? ' varchar(255)' : ''}, `;
+        `${key}${typing ? ' json NULL' : ''}, `:
+        `${key}${typing ? ' varchar(255) NULL' : ''}, `;
       }
       resolve(fields.slice(0, -2));
     });
 
   });
 }
+
+function checkFlag(callback){
+  if(totalLoop == terminou)
+    callback();
+  else
+    setTimeout(() => checkFlag(callback), 100);
+}
+
+let asKeys = {
+ "name": 0,
+ "image_path": 0,
+ "thumbnail_path": 0,
+ "text": 0,
+ "type": 0,
+ "number": 0,
+ "price_low": 0,
+ "price_avg": 0,
+ "price_high": 0,
+ "tcgplayer_link": 0,
+ "is_monster": 0,
+ "is_spell": 0,
+ "is_illegal": 0,
+ "is_trap": 0,
+ "has_name_condition": 0,
+ "species": 0,
+ "monster_types": 0,
+ "attack": 0,
+ "defense": 0,
+ "stars": 0,
+ "attribute": 0,
+ "is_pendulum": 0,
+ "is_xyz": 0,
+ "is_synchro": 0,
+ "is_fusion": 0,
+ "is_link": 0,
+ "is_extra_deck": 0,
+ "has_materials": 0,
+ "legality": 0,
+ "releases": 0
+};

@@ -19,8 +19,9 @@ con.connect((err) => {
   require('./routes/index')(app, con);
   let db = require('./database')(con, rp);
 
-  app.listen(8000, () => {
+  app.listen(8080, () => {
     console.log("Servidor iniciado na porta 8000!");
+    db.seed();
   });
 });
 
