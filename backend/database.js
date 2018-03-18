@@ -1,10 +1,10 @@
 const fs = require('fs');
-let base_url = "https://www.ygohub.com/api";
+const base_url = "https://www.ygohub.com/api";
 let cards = [];
 let totalCards;
 let current = 0;
 let terminou = 0;
-let totalLoop = 10;
+const totalLoop = 10;
 let todasCartas = [];
 let options = {
   url: `${base_url}/all_cards`,
@@ -91,6 +91,11 @@ module.exports = function(con, rp) {
   }
 }
 
+/**
+* @param rp: Request-Promise object
+* Função recursiva que se chama uma vez para cada carta em @see cards,
+* pega suas informações e coloca na variável global @see todasCartas.
+*/
 function geting(rp){
   let nome = cards[current++];
   options['url'] = `${base_url}/card_info?name=${nome}`;
@@ -122,6 +127,12 @@ function geting(rp){
   });
 }
 
+/**
+* @param rp: Request-Promise object.
+* @param typing: boolean. True se deve retornar a tipagem dos campos.
+* Faz um request pra uma carta qualquer e retorna o nome dos campos.
+* @return Uma Promise contendo uma string com o nome dos campos separado por vírgulas.
+*/
 function getFields(rp, typing){
   return new Promise((resolve, reject) => {
 
@@ -140,6 +151,11 @@ function getFields(rp, typing){
   });
 }
 
+/**
+* @param callback: function. Uma função de callback
+* Função recursiva que fica testando se já peguei todas as cartas
+* para executar o callback.
+*/
 function checkFlag(callback){
   if(totalLoop == terminou)
     callback();
@@ -147,6 +163,7 @@ function checkFlag(callback){
     setTimeout(() => checkFlag(callback), 100);
 }
 
+// Objeto modelo com todas a chaves possiveis das cartas.
 let asKeys = {
  "name": 0,
  "image_path": 0,
@@ -180,4 +197,5 @@ let asKeys = {
  "releases": 0
 };
 
+// Array com os campos que devem ser do tipo json no bd.
 let jsons = ['legality', 'releases', 'monster_types'];
