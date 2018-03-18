@@ -6,7 +6,9 @@ const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
-let con = mysql.createConnection({
+let porta = 8080;
+
+var con = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: '1234',
@@ -19,9 +21,10 @@ con.connect((err) => {
   require('./routes/index')(app, con);
   let db = require('./database')(con, rp);
 
-  app.listen(8080, () => {
-    console.log("Servidor iniciado na porta 8000!");
-    db.seed();
+  app.listen(porta, () => {
+    console.log(`Servidor iniciado na porta ${porta}!`);
+    db.migrate();
+    setTimeout(() => db.seed(), 1000);
   });
 });
 

@@ -1,3 +1,4 @@
+const fs = require('fs');
 let base_url = "https://www.ygohub.com/api";
 let cards = [];
 let totalCards;
@@ -17,66 +18,73 @@ module.exports = function(con, rp) {
 
   let tableName = 'cards';
 
-  // TODO: Tirar o slice do seed quando completo e ageitar o result.affectedRows
   return{
 
     seed: function(){
+      console.log("Seeding...");
 
-      rp(options)
-      .then((body) => {
-        cards = body['cards'].slice(0, 5);
-        console.log('All cards');
+      con.query(`SELECT * FROM ${tableName}`, (err, result) => {
+        if(result.length)
+          return console.log(`Tabela ${tableName} já tem registros!`);
 
-        totalCards = cards.length;
+        rp(options)
+        .then((body) => {
+          cards = body['cards'];
+          console.log('All cards');
 
-        for(let i = 0; i < totalLoop; i++){
-          geting(rp);
-        }
+          totalCards = cards.length;
 
-        checkFlag(() => {
-          getFields(rp, false).then(fields => {
+          for(let i = 0; i < totalLoop; i++)
+            geting(rp);
 
-            let arrayCartas = [];
-            for(let carta of todasCartas)
-              arrayCartas.push(Object.values(carta));
+          checkFlag(() => {
+            getFields(rp, false).then(fields => {
+              for(item of todasCartas){
+                con.query(`INSERT INTO ${tableName} (${fields}) VALUES (${con.escape(Object.values(item))})`,
+                 (err, result) => {
+                  if(err){
+                    fs.appendFile('arquivo', item, ()=>{});
+                    console.error(`Erro na query -> ${err.message}`);
+                  }
 
-            con.query(`INSERT INTO ${tableName} (${fields}) VALUES ?`,
-             [arrayCartas], (err, result) => {
-              if(err)
-                return console.error(err);
-
-              console.log(`Table ${tableName} got seeded with ${result} rows!`);
+                });
+              }
+            })//Fim getFields
+            .catch((err) => {
+              console.log("Erro ->"+ err);
+              process.exit();
             });
-          });
+          });//Fim checkFlag
+
         })
         .catch((err) => {
-          console.log("Erro ->"+ err);
+          console.log("Erro "+ err);
+          process.exit();
         });
-
-      })
-      .catch((err) => {
-        console.log("Erro "+ err);
       });
 
     },
 
     migrate: function(){
+      console.log("Migrating...");
 
       getFields(rp, true).then(fields => {
         con.query(`SHOW TABLES FROM \`ygo-catalog\` LIKE '${tableName}'`, (err, result) => {
           if(result.length){
-            console.log(`Tabela ${tableName} já existe`);
+            console.log(`Tabela ${tableName} já existe!`);
             return;
           }
           con.query(`CREATE TABLE ${tableName} (${fields})`, (err, result) => {
             if(err) console.error(err);
 
             console.log(`Tabela ${tableName} criada com sucesso!`);
+            process.exit();
           });
         });
       })
       .catch(err => {
         console.log('Deu ruim '+ err);
+        process.exit();
       });
     }
 
@@ -88,7 +96,6 @@ function geting(rp){
   options['url'] = `${base_url}/card_info?name=${nome}`;
 
   if(current >= totalCards){
-    console.log("Terminou");
     terminou++;
     return;
   }
@@ -96,10 +103,14 @@ function geting(rp){
   rp(options)
   .then((body) => {
     let aux = Object.assign({}, asKeys);
-    for(let k in aux){
-      body['card'].hasOwnProperty(k) ?
-      aux[k] = body.card[k] :
-      aux[k] = null;
+    if(body['card']){
+      for(let k in aux){
+        body['card'].hasOwnProperty(k) ?
+          aux[k] = jsons.includes(k) ?
+            JSON.stringify(body.card[k]) :
+            body.card[k]
+        : aux[k] = null;
+      }
     }
 
     todasCartas.push(aux);
@@ -119,9 +130,9 @@ function getFields(rp, typing){
     .then((body) => {
       let fields = "";
       for (var key in body['card']) {
-        fields += key === 'legality' || key === 'releases'?
+        fields += jsons.includes(key) ?
         `${key}${typing ? ' json NULL' : ''}, `:
-        `${key}${typing ? ' varchar(255) NULL' : ''}, `;
+        `${key}${typing ? key === 'text'? ' text NULL' : ' varchar(255) NULL' : ''}, `;
       }
       resolve(fields.slice(0, -2));
     });
@@ -168,3 +179,5 @@ let asKeys = {
  "legality": 0,
  "releases": 0
 };
+
+let jsons = ['legality', 'releases', 'monster_types'];
