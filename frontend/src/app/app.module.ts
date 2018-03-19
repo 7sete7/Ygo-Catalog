@@ -22,8 +22,7 @@ const appRoutes: Routes = [
     BrowserModule,
     FormsModule,
     RouterModule.forRoot(appRoutes),
-    HttpClientModule,
-    HttpClientJsonpModule
+    HttpClientModule
   ],
   providers: [
     CardService

@@ -4,8 +4,14 @@ const mysql = require('mysql');
 const rp = require('request-promise');
 const app = express();
 
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+  bodyParser.urlencoded({ extended: true });
+});
 
+// IMPORTANTE: Se mudar a porta aqui, tem que mudar na baseUrl do angular
 let porta = 8080;
 
 var con = mysql.createConnection({

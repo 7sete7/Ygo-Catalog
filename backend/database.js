@@ -93,7 +93,7 @@ module.exports = function(con, rp) {
 
 /**
 * @param rp: Request-Promise object
-* Função recursiva que se chama uma vez para cada carta em @see cards,
+* @description Função recursiva que se chama uma vez para cada carta em @see cards,
 * pega suas informações e coloca na variável global @see todasCartas.
 */
 function geting(rp){
@@ -130,7 +130,7 @@ function geting(rp){
 /**
 * @param rp: Request-Promise object.
 * @param typing: boolean. True se deve retornar a tipagem dos campos.
-* Faz um request pra uma carta qualquer e retorna o nome dos campos.
+* @description Faz um request pra uma carta qualquer e retorna o nome dos campos.
 * @return Uma Promise contendo uma string com o nome dos campos separado por vírgulas.
 */
 function getFields(rp, typing){
@@ -153,7 +153,7 @@ function getFields(rp, typing){
 
 /**
 * @param callback: function. Uma função de callback
-* Função recursiva que fica testando se já peguei todas as cartas
+* @description Função recursiva que fica testando se já peguei todas as cartas
 * para executar o callback.
 */
 function checkFlag(callback){

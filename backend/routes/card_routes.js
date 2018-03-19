@@ -13,6 +13,7 @@ module.exports = function(app, db){
   app.route('/api/cards/name/:name').get((req, res) => {
     db.query(`SELECT * FROM ${table} WHERE name = ?`, [req.params.name], (err, rows) => {
       if(err) throw err;
+      console.log(`Request para o nome ${req.params.name}`);
       res.send(rows);
     });
   });

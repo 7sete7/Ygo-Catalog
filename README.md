@@ -10,5 +10,4 @@ Este projeto visa catalogar de forma simples e intuitiva coleções da cartas de
 - Entrar na pasta backend via linha de comando;
 - Executar os seguintes comandos:
   1.`$ node install`
-  2.`$ npm run migrate`
-  3.`$ npm run seed`
+  2.`$ node index`

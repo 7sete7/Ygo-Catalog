@@ -8,34 +8,12 @@ import 'rxjs/add/operator/map';
 @Injectable()
 export class CardService {
 
-  private baseUrl = "https://www.ygohub.com/api/";
+  private baseUrl = `http://localhost:8080/api`;
 
   constructor(private http: HttpClient) { }
 
-  getCards(): Card[]
+  getCards(): Observable<Object>
   {
-    let array: Card[] = [];
-
-    this.http.get(this.baseUrl + `all_cards`)
-      .map(response => response['cards'])
-      .subscribe(data => {
-        for (let item of data) {
-          array.push(this.getCardInfo(item));
-        }
-      });
-      return array;
-  }
-
-  getCardInfo(name): Card
-  {
-    let carta = new Card();
-    this.http.get(this.baseUrl + `card_info?name=${name}`)
-      .map(response => response['card'])
-      .subscribe(data => {
-        for(let key in data){
-          carta[key] = data[key];
-        }
-      });
-    return carta;
+    return this.http.get(`${this.baseUrl}/cards/get_all`);
   }
 }
