@@ -1,0 +1,19 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "outDir": "./bin",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "target": "es5"
+  },
+  "lib": [
+    "es6"
+  ],
+  "include": [
+    "./src/**/*.ts"
+  ],
+  "exclude":[
+    "node_modules"
+  ]
+}
