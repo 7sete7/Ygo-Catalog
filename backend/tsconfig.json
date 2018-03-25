@@ -5,10 +5,11 @@
     "sourceMap": true,
     "declaration": false,
     "moduleResolution": "node",
-    "target": "es5"
+    "target": "ES5"
   },
   "lib": [
-    "es6"
+    "ES6",
+    "dom"
   ],
   "include": [
     "./src/**/*.ts"
