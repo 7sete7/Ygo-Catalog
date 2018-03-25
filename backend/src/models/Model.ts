@@ -1,6 +1,5 @@
 import { con } from '../index';
-import rp from 'request-promise/lib/rp';
-import 'es6-object-assign/dist/object-assign-auto.min.js';
+import * as rp from 'request-promise';
 
 /**
 * Super classe que todas as models descenderão.
@@ -71,23 +70,25 @@ export abstract class Model
   * value => {string[]} Um nome de campo em cada posição.
   */
   protected migrate(): void {
+    console.log(`Migrating...`);
+
     let alowedTypes = ["varchar", "json", "int", "text"];
-    let output = ``;
+    let query = ``;
 
     for(let key in this.fields){
       if(!alowedTypes.some(itm => key.search(itm) > -1))
         throw new TypeError(`Chave ${key} não pertence às chaves permitidas!`);
 
       this.fields[key].map((item) => {
-        output += `${item} ${key}`;
+        query += `${item} ${key}, `;
       });
     }
     con.query(`SHOW TABLES FROM \`ygo-catalog\` LIKE '${this.tableName}'`, (err, result) => {
       if(err) return console.error(err);
       if(result.length) return console.log(`Tabela ${this.tableName} já existe!`);
-      if(!output) throw new Error(`Erro na migration, variavel dos campos está vazia!`);
+      if(!query) throw new Error(`Erro na migration, variavel dos campos está vazia!`);
 
-      con.query(`CREATE TABLE ${this.tableName} (${output})`, (err, result) => {
+      con.query(`CREATE TABLE ${this.tableName} (${query.slice(0, -2)})`, (err, result) => {
         if(err) return console.error(err);
 
         console.log(`Tabela ${this.tableName} criada com sucesso!`);
@@ -106,8 +107,8 @@ export abstract class Model
   }
 
 }
-declare global {
-  interface Object{
-    assign(from: object, other: object);
-  }
-}
+// declare global {
+//   interface Object{
+//     assign(from: object, other: object);
+//   }
+// }

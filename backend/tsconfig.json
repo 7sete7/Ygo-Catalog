@@ -4,6 +4,7 @@
     "outDir": "./bin",
     "sourceMap": true,
     "declaration": false,
+    "removeComments": true,
     "moduleResolution": "node",
     "target": "ES5"
   },

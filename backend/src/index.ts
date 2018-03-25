@@ -8,7 +8,6 @@ app.use((req, res, next) => {
   bodyParser.urlencoded({ extended: true });
 });
 
-let con = conectarBD();
-doThings();
+let con = conectarBD(doThings);
 
 export { app, mysql, rp, con };

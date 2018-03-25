@@ -80,15 +80,16 @@ export class Card extends Model
   */
   public seed(): void{
     console.log("Seeding...");
+
     this.con.query(`SELECT * FROM ${this.tableName}`, (err, result) => {
       if(result.length) return console.error(`Tabela ${this.tableName} já possui registros!`);
 
-      let carta: string[];
+      let carta: string[] = [];
        for(let key in this.fields)
          carta.push(...this.fields[key]);
 
       this.rp(this.requestOptions).then(body => {
-        this.cards = body["cards"];
+        this.cards = body["cards"].slice(0, 15);
         console.log("All cards");
 
         for(let i = 0; i < this.recursao.totalLoop; i++)
@@ -115,8 +116,9 @@ export class Card extends Model
   /**
   * Função recursiva que roda simultâneamente {@link totalLoop | totalLoop} vezes,
   * pega os dados das cartas e guarda em {@link todasCartas | todasCartas}.
+  * @param {string[]} carta - Array contendo o nome dos campos na tabela.
   */
-  private pegarAsCartas(carta): void
+  private pegarAsCartas(carta: string[]): void
   {
     let nome = this.cards[this.recursao.current++];
     this.requestOptions["url"] = `${this.baseUrl}/card_info?name=${nome}`;
@@ -134,7 +136,7 @@ export class Card extends Model
             aux[k] = body["card"].hasOwnProperty(k)
                       ? this.fields["json null"].filter(itm => itm == k).length
                         ? JSON.stringify(body["card"][k])
-                        : null
+                        : body["card"][k]
                       : null
           }
           this.todasCartas.push(aux);

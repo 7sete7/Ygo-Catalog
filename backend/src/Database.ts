@@ -7,13 +7,13 @@ import { mysql, app } from './index';
 function doThings(){
   let card: Card = Card.instance;
   card.migrate();
-  card.seed();
+  setTimeout(() => card.seed(), 200);
 }
 
 /**
 * Cria a conexão com o banco de dados e inicia o servidor.
 */
-function conectarBD(): any{
+function conectarBD(callback: () => void): any{
   let porta = 8080;
 
   var con = mysql.createConnection({
@@ -30,9 +30,9 @@ function conectarBD(): any{
 
     app.listen(porta, () => {
       console.log(`Servidor iniciado na porta ${porta}!`);
+      callback();
     });
   });
-
   return con;
 };
 
