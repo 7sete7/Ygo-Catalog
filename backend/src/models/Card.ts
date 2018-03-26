@@ -16,10 +16,11 @@ export class Card extends Model
   private requestOptions: object;
   private recursao = {
     totalLoop: 10,
-    current: 0,
-    terminou: 0
+    terminou: 0,
+    current: 0
   }
-  private todasCartas: object[];
+  private todasCartas: object[] = [];
+  private fnSeed: () => void;
 
   private constructor(){
     super(`cards`);
@@ -89,23 +90,23 @@ export class Card extends Model
          carta.push(...this.fields[key]);
 
       this.rp(this.requestOptions).then(body => {
-        this.cards = body["cards"].slice(0, 15);
+        this.cards = body["cards"];
         console.log("All cards");
+
+        this.fnSeed = function() {
+
+          for(let item of this.todasCartas){
+            this.con.query(`INSERT INTO ${this.tableName} (${carta.join(', ')})
+            VALUES (${this.con.escape(Object.keys(item).map(key => item[key]))})`, (err, result) => {
+              if(err) return console.error(`Erro no insert!\n ${err}`);
+
+            });
+          }
+          console.log(`Tabela ${this.tableName} semeada com ${this.cards.length} registros!`);
+        }
 
         for(let i = 0; i < this.recursao.totalLoop; i++)
           this.pegarAsCartas(carta);
-
-        super.checarFlag(this.recursao.totalLoop == this.recursao.terminou, () => {
-          for(let item of this.todasCartas){
-            this.con.query(`INSERT INTO ${this.tableName} (${carta.join(', ')})
-            VALUES ${this.con.escape(Object.keys(item).map(key => item[key]))}`, (err, result) => {
-              if(err) return console.error(`Erro no insert!\n ${err}`);
-
-              console.log(`Tabela ${this.tableName} semeada com sucesso!`);
-            });
-
-          }
-        });
       })
       .catch(err => {
         console.log(`Erro pegando todas cartas!`);
@@ -121,10 +122,14 @@ export class Card extends Model
   private pegarAsCartas(carta: string[]): void
   {
     let nome = this.cards[this.recursao.current++];
+
     this.requestOptions["url"] = `${this.baseUrl}/card_info?name=${nome}`;
 
     if(this.recursao.current >= this.cards.length){
       this.recursao.terminou++;
+      if(this.recursao.terminou == this.recursao.totalLoop)
+        this.fnSeed();
+
       return;
     }
 
@@ -132,7 +137,7 @@ export class Card extends Model
      .then(body => {
         if(body["card"]){
           let aux = {};
-          for(let k in carta){
+          for(let k of carta){
             aux[k] = body["card"].hasOwnProperty(k)
                       ? this.fields["json null"].filter(itm => itm == k).length
                         ? JSON.stringify(body["card"][k])
