@@ -1,4 +1,7 @@
 import { Card } from './models/Card';
+import { Set } from './models/Set';
+import { Banlist } from './models/Banlist';
+import { BanCard } from './models/BanCard';
 import { mysql, app } from './index';
 
 /**
@@ -6,8 +9,20 @@ import { mysql, app } from './index';
 */
 function doThings(){
   let card: Card = Card.instance;
-  card.migrate();
-  setTimeout(() => card.seed(), 200);
+  let set: Set = Set.instance;
+  let bn: Banlist = Banlist.instance;
+  let bc: BanCard = BanCard.instance;
+  Promise.all<any>([
+    card.migrate(),
+    set.migrate(),
+    bn.migrate()
+  ])
+  .then(() => {
+    card.seed();
+    set.seed();
+    bn.seed()
+    .then((lista: object[]) => bc.seed(lista));
+  });
 }
 
 /**

@@ -6,12 +6,12 @@
     "declaration": false,
     "removeComments": true,
     "moduleResolution": "node",
-    "target": "ES5"
+    "target": "ES5",
+    "lib": [
+      "ES6",
+      "dom"
+    ]
   },
-  "lib": [
-    "ES6",
-    "dom"
-  ],
   "include": [
     "./src/**/*.ts"
   ],

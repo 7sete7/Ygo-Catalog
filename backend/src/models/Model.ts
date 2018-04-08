@@ -7,15 +7,28 @@ import * as rp from 'request-promise';
 export abstract class Model
 {
 
-  private SELECTALL: string;
+  public cards: any[];
+  private recursao = {
+    totalLoop: 10,
+    terminou: 0,
+    current: 0
+  }
+  protected todosItems: object[] = [];
+  private url : string;
+  protected abstract detailUrl: string;
+  protected abstract allUrl: string;
 
-  protected abstract fields: Object;
+  private SELECTALL: string;
+  private arrayDosCampos: string[] = [];
+
+  protected abstract fields: object;
   protected tableName: string;
   protected baseUrl: string;
+  protected fnGetItens: (objeto: object) => void = this.fn;
 
-  protected get opcoes(): object{
+  protected get requestOptions(): object{
     return {
-      url: `${this.baseUrl}/all_cards`,
+      url: `${this.baseUrl}/${this.allUrl}`,
       headers: {
         'User-Agent': 'Request-Promise'
       },
@@ -39,7 +52,7 @@ export abstract class Model
   /**
   * Retorna todos registros da tabela
   */
-  protected all() {
+  public all() {
     con.query(`${this.SELECTALL}`, (err, result) => {
       if(err) return console.error(err);
 
@@ -54,7 +67,7 @@ export abstract class Model
   * @return {object} O objeto representado o registro da tabela,
   * retorna um objeto vazio se não encontrar.
   */
-  protected getByField({field, value}){
+  public getByField({field, value}){
     con.query(`${this.SELECTALL} WHERE ${field} = ${value} LIMIT 1`, (err, result) => {
       if(err) return console.error(err);
 
@@ -69,46 +82,123 @@ export abstract class Model
   * key => {string} Representa o tipo e opções do campo, como null ou tamanho.
   * value => {string[]} Um nome de campo em cada posição.
   */
-  protected migrate(): void {
-    console.log(`Migrating...`);
+  protected migrar(): Promise<any> {
+    return new Promise(resolve => {
+      let alowedTypes = ["varchar", "json", "int", "text", "date", "bool"];
+      let query = ``;
 
-    let alowedTypes = ["varchar", "json", "int", "text"];
-    let query = ``;
+      if(this.tableName != `banCard`)
+        query += `id int NOT NULL AUTO_INCREMENT, PRIMARY KEY (id), `;
+      else
+        query += `FOREIGN KEY card REFERENCES cards(id)`;
 
-    for(let key in this.fields){
-      if(!alowedTypes.some(itm => key.search(itm) > -1))
-        throw new TypeError(`Chave ${key} não pertence às chaves permitidas!`);
+      for(let key in this.fields){
+        if(!alowedTypes.some(itm => key.toLowerCase().search(itm) > -1))
+          throw new TypeError(`Chave ${key} não pertence às chaves permitidas!`);
 
-      this.fields[key].map((item) => {
-        query += `${item} ${key}, `;
-      });
-    }
-    con.query(`SHOW TABLES FROM \`ygo-catalog\` LIKE '${this.tableName}'`, (err, result) => {
-      if(err) return console.error(err);
-      if(result.length) return console.log(`Tabela ${this.tableName} já existe!`);
-      if(!query) throw new Error(`Erro na migration, variavel dos campos está vazia!`);
+        this.fields[key].map((item) => {
+          query += `${item} ${key}, `;
+        });
 
-      con.query(`CREATE TABLE ${this.tableName} (${query.slice(0, -2)})`, (err, result) => {
+      }
+      con.query(`SHOW TABLES FROM \`ygo-catalog\` LIKE '${this.tableName}'`, (err, result) => {
         if(err) return console.error(err);
+        if(!query) throw new Error(`Erro na migration, variavel dos campos está vazia!`);
+        if(result.length){
+          resolve(1);
+          return console.log(`Tabela ${this.tableName} já existe!`);
+        }
 
-        console.log(`Tabela ${this.tableName} criada com sucesso!`);
+        con.query(`CREATE TABLE ${this.tableName} (${query.slice(0, -2)})`, (err, result) => {
+          if(err) return console.error(err);
+          resolve(1);
+          console.log(`Tabela ${this.tableName} criada com sucesso!`);
+        });
       });
     });
   }
 
   /**
-  * Checa determinada flag a cada 100 milisegundos.
-  * @param {boolean} flag - A flag a ser testada;
-  * @param {function} callback - O calback que será chamado quando a flag for true.
+  * Semeia a tabela card pegando os dados da {@link https://www.ygohub.com/api | API}
   */
-  protected checarFlag(flag: boolean, callback: () => void): void{
-    if(flag) callback();
-    else setTimeout(() => this.checarFlag(flag, callback), 100);
+  protected semear(){
+    this.con.query(`SELECT * FROM ${this.tableName}`, (err, result) => {
+      if(result.length) return console.error(`Tabela ${this.tableName} já possui registros!`);
+
+      for(let key in this.fields)
+        this.arrayDosCampos.push(...this.fields[key]);
+
+      this.rp(this.requestOptions).then(body => {
+        this.cards = body.cards || body.sets;
+        this.cards = this.cards.slice(0, 11);
+
+        for(let i = 0; i < this.recursao.totalLoop; i++)
+          this.pegarAsCartas();
+      })
+      .catch(err => console.log(`Erro pegando todas ${this.tableName}! \n> ${err}`));
+    });
+  }
+
+  /**
+  * Função recursiva que roda simultâneamente {@link totalLoop | totalLoop} vezes,
+  * pega os dados das cartas e guarda em {@link todosItems | todosItems}.
+  * @param {string[]} arrayDosCampos - Array contendo o nome dos campos na tabela.
+  */
+  private pegarAsCartas(): void
+  {
+    let nome = this.cards[this.recursao.current++];
+    let op = this.requestOptions;
+    op["url"] = `${this.baseUrl}/${this.detailUrl}?name=${nome}`;
+
+    if(this.recursao.current >= this.cards.length){
+      this.recursao.terminou++;
+      if(this.recursao.terminou == this.recursao.totalLoop)
+        this.inserirNaTabela(this.arrayDosCampos, this.todosItems);
+
+      return;
+    }
+
+    this.rp(op)
+      .then(body => {
+        let arr = this.arrayDosCampos;
+        this.fnGetItens({body, arr});
+        this.pegarAsCartas();
+      })
+      .catch(err => {
+        console.log(`Erro no número ${this.recursao.current} -> ${err}`);
+        this.pegarAsCartas();
+      });
+  }
+
+  protected inserirNaTabela(arrayDosCampos: string[], itens: string[][] | object[]): void {
+    for(let item of itens){
+      let values = this.con.escape(Object.keys(item).map(key => {
+        if(!isNaN(item[key])) return Number(item[key]);
+        return item[key];
+      }));
+
+      this.con.query(`
+        INSERT INTO ${this.tableName} (${arrayDosCampos.join(', ')})
+        VALUES (${values})`,
+        err => { if(err) return console.error(`Erro no insert!\n ${err}`)}
+      );
+    }
+    console.log(`Tabela ${this.tableName} semeada com aproximadamente ${itens.length} registros!`);
+  }
+
+  private fn({body: body, arr: arrayDosCampos}){
+    let singular: string = this.tableName.slice(0, -1);
+    if(body[singular]){
+        let aux = {};
+        for(let k of arrayDosCampos){
+          aux[k] = body[singular].hasOwnProperty(k)
+                    ? this.fields["json null"].filter(itm => itm == k).length
+                      ? JSON.stringify(body[singular][k])
+                      : body[singular][k]
+                    : null;
+        }
+        this.todosItems.push(aux);
+      }
   }
 
 }
-// declare global {
-//   interface Object{
-//     assign(from: object, other: object);
-//   }
-// }
