@@ -27,8 +27,8 @@ export class Set extends Model
     ]
   };
 
-  public seed(): void{
-    super.semear();
+  public seed(): Promise<any>{
+    return super.semear();
   }
 
   public migrate(): Promise<any>{

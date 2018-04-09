@@ -29,21 +29,19 @@ export class Card extends Model
   * Ver @see {Model.migrate} para mais informações.
   */
   protected fields = {
-    "int null": [
-      "number",
-      "attack",
-      "defense",
-      "stars"
-    ],
     "varchar(255) null": [
       "name",
       "image_path",
       "thumbnail_path",
       "type",
+      "tcgplayer_link",
+      "number",
+      "attack",
+      "defense",
+      "stars",
       "price_low",
       "price_avg",
       "price_high",
-      "tcgplayer_link",
       "is_monster",
       "is_spell",
       "is_illegal",
@@ -67,8 +65,8 @@ export class Card extends Model
     ]
   }
 
-  public seed(): void{
-    super.semear();
+  public seed(): Promise<any>{
+    return super.semear();
   }
 
   public migrate(): Promise<any>{

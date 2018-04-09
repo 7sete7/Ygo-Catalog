@@ -84,7 +84,7 @@ export abstract class Model
   */
   protected migrar(): Promise<any> {
     return new Promise(resolve => {
-      let alowedTypes = ["varchar", "json", "int", "text", "date", "bool"];
+      let alowedTypes = ["varchar", "json", "int", "text", "date", "bool", "float"];
       let query = ``;
 
       if(this.tableName != `banCard`)
@@ -121,21 +121,27 @@ export abstract class Model
   /**
   * Semeia a tabela card pegando os dados da {@link https://www.ygohub.com/api | API}
   */
-  protected semear(){
-    this.con.query(`SELECT * FROM ${this.tableName}`, (err, result) => {
-      if(result.length) return console.error(`Tabela ${this.tableName} já possui registros!`);
+  protected semear(): Promise<any>{
+    console.log(`Semeando ${this.tableName}...`);
 
-      for(let key in this.fields)
-        this.arrayDosCampos.push(...this.fields[key]);
+    return new Promise(resolve => {
+      this.con.query(`SELECT * FROM ${this.tableName}`, (err, result) => {
+        if(result.length){
+          resolve(1);
+          return console.log(`Tabela ${this.tableName} já possui registros!`);
+        }
 
-      this.rp(this.requestOptions).then(body => {
-        this.cards = body.cards || body.sets;
-        this.cards = this.cards.slice(0, 11);
+        for(let key in this.fields)
+          this.arrayDosCampos.push(...this.fields[key]);
 
-        for(let i = 0; i < this.recursao.totalLoop; i++)
-          this.pegarAsCartas();
-      })
-      .catch(err => console.log(`Erro pegando todas ${this.tableName}! \n> ${err}`));
+        this.rp(this.requestOptions).then(body => {
+          this.cards = body.cards || body.sets;
+
+          for(let i = 0; i < this.recursao.totalLoop; i++)
+            this.pegarAsCartas().then((a) => resolve(1));
+        })
+        .catch(err => console.log(`Erro pegando todas ${this.tableName}! \n> ${err}`));
+      });
     });
   }
 
@@ -144,45 +150,46 @@ export abstract class Model
   * pega os dados das cartas e guarda em {@link todosItems | todosItems}.
   * @param {string[]} arrayDosCampos - Array contendo o nome dos campos na tabela.
   */
-  private pegarAsCartas(): void
+  private pegarAsCartas(): Promise<any>
   {
-    let nome = this.cards[this.recursao.current++];
-    let op = this.requestOptions;
-    op["url"] = `${this.baseUrl}/${this.detailUrl}?name=${nome}`;
+    return new Promise<any>(resolve => {
+      let nome = this.cards[this.recursao.current++];
+      let op = this.requestOptions;
+      op["url"] = `${this.baseUrl}/${this.detailUrl}?name=${nome}`;
 
-    if(this.recursao.current >= this.cards.length){
-      this.recursao.terminou++;
-      if(this.recursao.terminou == this.recursao.totalLoop)
-        this.inserirNaTabela(this.arrayDosCampos, this.todosItems);
+      if(this.recursao.current >= this.cards.length){
+        this.recursao.terminou++;
+        if(this.recursao.terminou == this.recursao.totalLoop)
+          resolve(this.inserirNaTabela(this.arrayDosCampos, this.todosItems));
+        return;
+      }
 
-      return;
-    }
-
-    this.rp(op)
-      .then(body => {
-        let arr = this.arrayDosCampos;
-        this.fnGetItens({body, arr});
-        this.pegarAsCartas();
-      })
-      .catch(err => {
-        console.log(`Erro no número ${this.recursao.current} -> ${err}`);
-        this.pegarAsCartas();
-      });
+      this.rp(op)
+        .then(body => {
+          let arr = this.arrayDosCampos;
+          this.fnGetItens({body, arr});
+          this.pegarAsCartas();
+        })
+        .catch(err => {
+          console.log(`Erro no número ${this.recursao.current} -> ${err}`);
+          this.pegarAsCartas();
+        });
+    });
   }
 
-  protected inserirNaTabela(arrayDosCampos: string[], itens: string[][] | object[]): void {
-    for(let item of itens){
-      let values = this.con.escape(Object.keys(item).map(key => {
-        if(!isNaN(item[key])) return Number(item[key]);
-        return item[key];
-      }));
+  protected inserirNaTabela(arrayDosCampos: string[], itens: object[]): void
+  {
+    itens.forEach((item, i) => {
+      let values = this.con.escape(Object.keys(item).map(key => item[key]));
 
       this.con.query(`
         INSERT INTO ${this.tableName} (${arrayDosCampos.join(', ')})
         VALUES (${values})`,
-        err => { if(err) return console.error(`Erro no insert!\n ${err}`)}
+        err => {
+          if(err) console.error(`Erro no insert!\n> ${err}`);
+        }
       );
-    }
+    });
     console.log(`Tabela ${this.tableName} semeada com aproximadamente ${itens.length} registros!`);
   }
 

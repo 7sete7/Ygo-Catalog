@@ -18,10 +18,12 @@ function doThings(){
     bn.migrate()
   ])
   .then(() => {
-    card.seed();
-    set.seed();
-    bn.seed()
-    .then((lista: object[]) => bc.seed(lista));
+    Promise.all([
+      card.seed(),
+      set.seed(),
+      bn.seed()
+    ])
+    .then(value => bc.seed(value[2]));
   });
 }
 

@@ -27,6 +27,7 @@ export class BanCard extends Model
   }
 
   public seed(lista: object[]): void {
+    console.log("Semeando bancards...");
     let opcoes = this.requestOptions;
     let cartas = [];
 
@@ -36,7 +37,7 @@ export class BanCard extends Model
         .then(body => {
           for(let carta of body["banlist"]["cards"]){
             this.assignForeign(carta).then(id => {
-              console.log(id);
+              if(!id) throw new Error();
               cartas.push({
                 "card_id": id,
                 "card_name": carta["card_name"],
