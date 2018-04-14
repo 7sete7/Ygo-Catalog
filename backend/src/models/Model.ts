@@ -180,11 +180,13 @@ export abstract class Model
   protected inserirNaTabela(arrayDosCampos: string[], itens: object[]): void
   {
     itens.forEach((item, i) => {
-      let values = this.con.escape(Object.keys(item).map(key => item[key]));
+      let values = this.con.escape(Object.keys(item).map(key => {
+        return item[key].match(/none|\?|\s|.{0}/g) ? null : item[key];
+      }));
 
       this.con.query(`
         INSERT INTO ${this.tableName} (${arrayDosCampos.join(', ')})
-        VALUES (${values})`,
+        VALUES ?`, [values],
         err => {
           if(err) console.error(`Erro no insert!\n> ${err}`);
         }

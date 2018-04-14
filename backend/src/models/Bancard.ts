@@ -57,9 +57,9 @@ export class BanCard extends Model
   }
 
   public assignForeign(card_name): Promise<number> {
-    return new Promise(res => {
+    return new Promise(resolve => {
       this.con.query(`SELECT id FROM cards WHERE name = '${card_name}'`, (err, result) => {
-        res(JSON.parse(JSON.stringify(result))["id"]);
+        resolve(JSON.parse(JSON.stringify(result))["id"]);
       });
     });
   }
