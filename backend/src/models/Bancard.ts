@@ -58,6 +58,10 @@ export class BanCard extends Model
     return super.migrar();
   }
 
+/**
+* Função que liga a carta do banlist com as cartas do cards.
+* @return {object[]} - Array de objetos contendo o id do card e banlist.
+*/
   protected async assignForeign(cartas: object[], {id: id_bl}): Promise<object[]>
   {
     let names = cartas.map(card => card["card_name"]);

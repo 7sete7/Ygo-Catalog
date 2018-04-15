@@ -55,7 +55,12 @@ export class Banlist extends Model
     return super.migrar();
   }
 
-  private pegaItens({banlists: bn}): string[][] {
+/**
+* Função que pega e separa as banlists vindas da api.
+* @param {object} banlists - Objeto de resposta da api contendo todas banlists.
+* @return {object[]} - Array de objetos bonitinho com os dados das banlists.
+*/
+  private pegaItens({banlists: bn}): object[] {
     let aux = [];
     let o = {};
 

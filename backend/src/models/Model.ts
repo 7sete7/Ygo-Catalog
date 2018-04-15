@@ -176,6 +176,11 @@ export abstract class Model
     });
   }
 
+/**
+* Insere dados na tabela
+* @param {string[]} arrayDosCampos - Array contendo o nome dos campos a ser usado.
+* @param {object[]} itens - Array de objetos contento os dados a serem inseridos.
+*/
   protected inserirNaTabela(arrayDosCampos: string[], itens: object[]): void
   {
     //Testa se tem 'none', '?', ' ', ''.
@@ -197,6 +202,12 @@ export abstract class Model
     console.log(`Tabela ${this.tableName} semeada com aproximadamente ${itens.length} registros!`);
   }
 
+/**
+* Função padrão para pegar separar e guardar os dados que vem da api
+* Vai para a @see fnGetItens, pode ser sobrescrito para um comportamento diferente.
+* @param {object} body - O corpo da response da api
+* @param {string[]} arrayDosCampos - Array contendo o nome dos campos.
+*/
   private fn({body: body, arr: arrayDosCampos}){
     let singular: string = this.tableName.slice(0, -1);
     if(body[singular]){
@@ -212,6 +223,10 @@ export abstract class Model
       }
   }
 
+/**
+* Função que gera a query para criação da tabela.
+* @return {string} - A query dos campos da tabela.
+*/
   private generateQuery(): string{
     let alowedTypes = ["varchar", "json", "int", "text", "date", "bool", "float"];
     let query = ``;
