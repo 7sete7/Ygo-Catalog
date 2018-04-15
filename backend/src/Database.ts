@@ -3,6 +3,7 @@ import { Set } from './models/Set';
 import { Banlist } from './models/Banlist';
 import { BanCard } from './models/BanCard';
 import { mysql, app } from './index';
+import routes from './routes/index';
 
 /**
 * Aqui onde as models são chamadas.
@@ -44,7 +45,7 @@ function conectarBD(callback: () => void): any{
     if(err) throw err;
     console.log("Conexão com banco de dados!");
 
-    //require('./routes/index')(app, con);
+    routes(app, con);
 
     app.listen(porta, () => {
       console.log(`Servidor iniciado na porta ${porta}!`);
