@@ -3,10 +3,18 @@ import { Banlist } from './Banlist';
 import { Card } from './Card';
 
 export class BanCard extends Model
- {
+{
 
   protected detailUrl: string;
 	protected allUrl: string;
+  protected fields = {
+    "int": ["card", "banlist"],
+    "varchar(100) null": [
+      "name",
+      "status",
+      "previous_status"
+    ]
+  }
 
   private static _instance: BanCard;
 
@@ -18,37 +26,30 @@ export class BanCard extends Model
     return this._instance || (this._instance = new BanCard());
   }
 
-  protected fields = {
-    "int": ["card", "banlist"],
-    "varchar(100) null": [
-      "name",
-      "status",
-      "previous_status"
-    ]
-  }
-
   public async seed()
   {
+    let _this_ = BanCard.instance;
+
     try{
       console.log("Semeando bancards...");
-      let opcoes = this.requestOptions;
+      let opcoes = BanCard.instance.requestOptions;
       let cartas = [];
       let lista = await Banlist.instance.all();
 
+      let car = await Promise.all(lista.map(async bl => {
+        opcoes["url"] = `${_this_.baseUrl}/banlist_info?region=${bl["region"]}&start_date=${bl["start"]}&game_type=${bl["game_type"]}`;
 
-      await Promise.all(lista.map(bl => {
-        opcoes["url"] = `${this.baseUrl}/banlist_info?region=${bl["region"]}&start_date=${bl["start_date"]}&game_type=${bl["game_type"]}`;
-
-        this.rp(opcoes)
+        _this_.rp(opcoes)
           .then(async res => {
             try{
-              let arrayCartas = await this.assignForeign(res, bl);
-              console.log(arrayCartas);
+              if(res["status"] == "error") throw new URIError(`Banlist não encontrada! \n${opcoes["url"]}`);
+              return await _this_.assignForeign(res["banlist"]["cards"], bl);
             }
-            catch(e){console.error(e)}
+            catch(e){ console.error(e) }
           })
           .catch(e => `Erro no bancard \n>${e}`);
       }));
+      console.log(car);
     }
     catch(e){ console.error(e) }
 
@@ -69,7 +70,7 @@ export class BanCard extends Model
     let cards: object[] = [];
 
     await as.forEach(({id, name}) => {
-      let [carta,] = cartas.filter(c => c["name"] == name);
+      let [carta,] = cartas.filter(c => c["card_name"] == name);
       cards.push({
         "card": id,
         "banlist": id_bl,

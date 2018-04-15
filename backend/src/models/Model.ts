@@ -61,6 +61,7 @@ export abstract class Model
         try{ res = JSON.parse(JSON.stringify(result)); }
         catch(e){ return reject(err); }
 
+        res = this.formatDate(res);
         resolve(res);
       });
     });
@@ -83,6 +84,7 @@ export abstract class Model
         try{ res = JSON.parse(JSON.stringify(result)); }
         catch(e){ return reject(err); }
 
+        res = this.formatDate(res);
         resolve(res);
       });
     });
@@ -247,6 +249,22 @@ export abstract class Model
       query += `FOREIGN KEY card REFERENCES cards(id), FOREIGN KEY banlist REFERENCES banlist(id), `;
 
     return query;
+  }
+
+/**
+* Função projetada exclusivamente para pegar dados da banlist.
+* Tira o TZ que vem após a data por um motivo desconhecido -> 2005-06-01 T03:00:00Z.
+* @param {object[]} res - O response da query
+* @return {object[]} - O response formatado se veio da banlist, senão só retorna.
+*/
+  private formatDate(res: object[]): object[]{
+    if(res[0].hasOwnProperty("start")){
+      for(let item of res){
+        item["start"] = item["start"] ? item["start"].split(/T[0-9]{2}:/g)[0] : null;
+        item["end"] = item["end"] ? item["end"].split(/T[0-9]{2}:/g)[0] || item["end"] : null;
+      }
+    }
+    return res;
   }
 
 }
