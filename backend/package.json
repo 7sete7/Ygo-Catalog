@@ -3,10 +3,7 @@
   "version": "1.0.0",
   "description": "Catalogo",
   "main": "index.js",
-  "scripts": {
-    "seed": "node -e require('./index').seed()",
-    "migrate": "node -e require('./index').migrate()"
-  },
+  "scripts": {},
   "keywords": [
     "ygo"
   ],

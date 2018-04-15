@@ -15,7 +15,8 @@ function doThings(){
   Promise.all<any>([
     card.migrate(),
     set.migrate(),
-    bn.migrate()
+    bn.migrate(),
+    bc.migrate()
   ])
   .then(() => {
     Promise.all([
@@ -23,7 +24,7 @@ function doThings(){
       set.seed(),
       bn.seed()
     ])
-    .then(value => bc.seed(value[2]));
+    .then(bc.seed);
   });
 }
 

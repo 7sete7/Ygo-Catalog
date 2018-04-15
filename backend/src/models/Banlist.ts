@@ -25,7 +25,7 @@ export class Banlist extends Model
     return this._instance || (this._instance = new Banlist());
   }
 
-  public seed(): Promise<string[][]> {
+  public seed(): Promise<number> {
     console.log("Semeando banlists...")
     return new Promise(resolve => {
       let arrayDosCampos = [];
@@ -33,13 +33,16 @@ export class Banlist extends Model
         arrayDosCampos.push(...this.fields[key]);
 
       this.con.query(`SELECT * FROM ${this.tableName}`, (err, result) => {
-        if(result.length) return console.error(`${this.tableName} precisa ser esvaziado!`);
+        if(result.length){
+          resolve(1);
+          return console.log(`Tabela ${this.tableName} já possui registros!`);
+        }
 
         this.rp(this.requestOptions).then(body => {
           this.banlists = body.banlists;
 
           let lista = this.pegaItens(body);
-          resolve(lista);
+          resolve(1);
 
           this.inserirNaTabela(arrayDosCampos, lista);
         })

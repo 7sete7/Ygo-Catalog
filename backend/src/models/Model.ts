@@ -52,11 +52,17 @@ export abstract class Model
   /**
   * Retorna todos registros da tabela
   */
-  public all() {
-    con.query(`${this.SELECTALL}`, (err, result) => {
-      if(err) return console.error(err);
+  public all(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      con.query(`${this.SELECTALL}`, (err, result) => {
+        if(err) return reject(err);
+        let res;
 
-      return result;
+        try{ res = JSON.parse(JSON.stringify(result)); }
+        catch(e){ return reject(err); }
+
+        resolve(res);
+      });
     });
   }
 
@@ -67,11 +73,18 @@ export abstract class Model
   * @return {object} O objeto representado o registro da tabela,
   * retorna um objeto vazio se não encontrar.
   */
-  public getByField({field, value}){
-    con.query(`${this.SELECTALL} WHERE ${field} = ${value} LIMIT 1`, (err, result) => {
-      if(err) return console.error(err);
+  public getByField({field, value, limit = 1}): Promise<any>{
+    return new Promise((resolve, reject) => {
+      con.query(`${this.SELECTALL} WHERE ${field} IN (?) LIMIT ${limit}`, [value],
+      (err, result) => {
+        if(err) return reject(err);
+        let res;
 
-      return result;
+        try{ res = JSON.parse(JSON.stringify(result)); }
+        catch(e){ return reject(err); }
+
+        resolve(res);
+      });
     });
   }
 
@@ -84,23 +97,9 @@ export abstract class Model
   */
   protected migrar(): Promise<any> {
     return new Promise(resolve => {
-      let alowedTypes = ["varchar", "json", "int", "text", "date", "bool", "float"];
-      let query = ``;
 
-      if(this.tableName != `banCard`)
-        query += `id int NOT NULL AUTO_INCREMENT, PRIMARY KEY (id), `;
-      else
-        query += `FOREIGN KEY card REFERENCES cards(id)`;
+      let query = this.generateQuery();
 
-      for(let key in this.fields){
-        if(!alowedTypes.some(itm => key.toLowerCase().search(itm) > -1))
-          throw new TypeError(`Chave ${key} não pertence às chaves permitidas!`);
-
-        this.fields[key].map((item) => {
-          query += `${item} ${key}, `;
-        });
-
-      }
       con.query(`SHOW TABLES FROM \`ygo-catalog\` LIKE '${this.tableName}'`, (err, result) => {
         if(err) return console.error(err);
         if(!query) throw new Error(`Erro na migration, variavel dos campos está vazia!`);
@@ -179,14 +178,17 @@ export abstract class Model
 
   protected inserirNaTabela(arrayDosCampos: string[], itens: object[]): void
   {
-    itens.forEach((item, i) => {
-      let values = this.con.escape(Object.keys(item).map(key => {
-        return item[key].match(/none|\?|\s|.{0}/g) ? null : item[key];
+    //Testa se tem 'none', '?', ' ', ''.
+    let regex = new RegExp(/^\s?none\s?$|\?|^\s+$|^$/g);
+
+    itens.forEach(async (item, i) => {
+      let values = await this.con.escape(Object.keys(item).map(key => {
+        return item[key] && !regex.test(item[key]) ? item[key] : null;
       }));
 
       this.con.query(`
         INSERT INTO ${this.tableName} (${arrayDosCampos.join(', ')})
-        VALUES ?`, [values],
+        VALUES (${values})`,
         err => {
           if(err) console.error(`Erro no insert!\n> ${err}`);
         }
@@ -208,6 +210,28 @@ export abstract class Model
         }
         this.todosItems.push(aux);
       }
+  }
+
+  private generateQuery(): string{
+    let alowedTypes = ["varchar", "json", "int", "text", "date", "bool", "float"];
+    let query = ``;
+
+    if(this.tableName != `banCard`)
+      query += `id int NOT NULL AUTO_INCREMENT, PRIMARY KEY (id), `;
+
+    for(let key in this.fields){
+      if(!alowedTypes.some(itm => key.toLowerCase().search(itm) > -1))
+        throw new TypeError(`Chave ${key} não pertence às chaves permitidas!`);
+
+      this.fields[key].map((item) => {
+        query += `${item} ${key}, `;
+      });
+    }
+
+    if(this.tableName == `bancard`)
+      query += `FOREIGN KEY card REFERENCES cards(id), FOREIGN KEY banlist REFERENCES banlist(id), `;
+
+    return query;
   }
 
 }

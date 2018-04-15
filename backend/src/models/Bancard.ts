@@ -1,5 +1,6 @@
 import { Model } from './Model';
 import { Banlist } from './Banlist';
+import { Card } from './Card';
 
 export class BanCard extends Model
  {
@@ -18,50 +19,62 @@ export class BanCard extends Model
   }
 
   protected fields = {
-    "int null": ["card"],
-    "varchar(100)": [
+    "int": ["card", "banlist"],
+    "varchar(100) null": [
       "name",
       "status",
       "previous_status"
     ]
   }
 
-  public seed(lista: object[]): void {
-    console.log("Semeando bancards...");
-    let opcoes = this.requestOptions;
-    let cartas = [];
+  public async seed()
+  {
+    try{
+      console.log("Semeando bancards...");
+      let opcoes = this.requestOptions;
+      let cartas = [];
+      let lista = await Banlist.instance.all();
 
-    for(let bl of lista){
-      opcoes["url"] = `${this.baseUrl}/banlist_info?region=${bl["region"]}&start_date=${bl["start_date"]}&game_type=${bl["game_type"]}`;
-      this.rp(opcoes)
-        .then(body => {
-          for(let carta of body["banlist"]["cards"]){
-            this.assignForeign(carta).then(id => {
-              if(!id) throw new Error();
-              cartas.push({
-                "card_id": id,
-                "card_name": carta["card_name"],
-                "status": carta["status"],
-                "previous_status": carta["previous_status"]
-              });
-            })
-            .catch(e => console.log(`Não achei o nome ${carta["card_name"]}`));
-          }
-        })
-        .catch(err => console.error(`Erro no bancard > ${err}`));
+
+      await Promise.all(lista.map(bl => {
+        opcoes["url"] = `${this.baseUrl}/banlist_info?region=${bl["region"]}&start_date=${bl["start_date"]}&game_type=${bl["game_type"]}`;
+
+        this.rp(opcoes)
+          .then(async res => {
+            try{
+              let arrayCartas = await this.assignForeign(res, bl);
+              console.log(arrayCartas);
+            }
+            catch(e){console.error(e)}
+          })
+          .catch(e => `Erro no bancard \n>${e}`);
+      }));
     }
-  }
+    catch(e){ console.error(e) }
+
+  };
 
   public migrate(): Promise<number> {
     return super.migrar();
   }
 
-  public assignForeign(card_name): Promise<number> {
-    return new Promise(resolve => {
-      this.con.query(`SELECT id FROM cards WHERE name = '${card_name}'`, (err, result) => {
-        resolve(JSON.parse(JSON.stringify(result))["id"]);
+  protected async assignForeign(cartas: object[], {id: id_bl}): Promise<object[]>
+  {
+    let names = cartas.map(card => card["card_name"]);
+    let as = await Card.instance.getByField({field: "name", value: names, limit: 999});
+    let cards: object[] = [];
+
+    await as.forEach(({id, name}) => {
+      let [carta,] = cartas.filter(c => c["name"] == name);
+      cards.push({
+        "card": id,
+        "banlist": id_bl,
+        "status": carta["status"],
+        "previous_status": carta["previous_status"],
       });
     });
+
+    return cards;
   }
 
 }
