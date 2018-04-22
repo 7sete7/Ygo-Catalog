@@ -18,7 +18,7 @@ export class Banlist extends Model
   private static _instance: Banlist;
 
   private constructor(){
-    super(`banlist`);
+    super(`banlists`);
   }
 
   public static get instance(): Banlist{
@@ -28,12 +28,8 @@ export class Banlist extends Model
   public seed(): Promise<number> {
     console.log("Semeando banlists...")
     return new Promise(resolve => {
-      let arrayDosCampos = [];
-      for(let key in this.fields)
-        arrayDosCampos.push(...this.fields[key]);
-
       this.con.query(`SELECT * FROM ${this.tableName}`, (err, result) => {
-        if(result.length){
+        if(result != null){
           resolve(1);
           return console.log(`Tabela ${this.tableName} já possui registros!`);
         }
@@ -44,7 +40,7 @@ export class Banlist extends Model
           let lista = this.pegaItens(body);
           resolve(1);
 
-          this.inserirNaTabela(arrayDosCampos, lista);
+          this.inserirNaTabela(lista);
         })
         .catch(err => console.log(`Erro pegando todas ${this.tableName}! \n${Error(err)}`));
       });

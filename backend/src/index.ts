@@ -1,5 +1,5 @@
 import { app, mysql, rp, bodyParser } from '../index';
-import { conectarBD, doThings } from './Database';
+import { conectarBD, generateBD } from './Database';
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
@@ -8,6 +8,6 @@ app.use((req, res, next) => {
   bodyParser.urlencoded({ extended: true });
 });
 
-let con = conectarBD(doThings);
+let con = conectarBD(generateBD);
 
 export { app, mysql, rp, con };

@@ -1,6 +1,6 @@
 import { con } from '../index';
 import * as rp from 'request-promise';
-
+import { Card } from './Card';
 /**
 * Super classe que todas as models descenderão.
 */
@@ -19,7 +19,6 @@ export abstract class Model
   protected abstract allUrl: string;
 
   private SELECTALL: string;
-  private arrayDosCampos: string[] = [];
 
   protected abstract fields: object;
   protected tableName: string;
@@ -58,8 +57,8 @@ export abstract class Model
         if(err) return reject(err);
         let res;
 
-        try{ res = JSON.parse(JSON.stringify(result)); }
-        catch(e){ return reject(err); }
+        try{ if(res) res = JSON.parse(JSON.stringify(result)); }
+        catch(e){ return reject(e); }
 
         res = this.formatDate(res);
         resolve(res);
@@ -81,8 +80,8 @@ export abstract class Model
         if(err) return reject(err);
         let res;
 
-        try{ res = JSON.parse(JSON.stringify(result)); }
-        catch(e){ return reject(err); }
+        try{ if(res) res = JSON.parse(JSON.stringify(result)); }
+        catch(e){ return reject(e); }
 
         res = this.formatDate(res);
         resolve(res);
@@ -127,13 +126,10 @@ export abstract class Model
 
     return new Promise(resolve => {
       this.con.query(`SELECT * FROM ${this.tableName}`, (err, result) => {
-        if(result.length){
+        if(result != null){
           resolve(1);
           return console.log(`Tabela ${this.tableName} já possui registros!`);
         }
-
-        for(let key in this.fields)
-          this.arrayDosCampos.push(...this.fields[key]);
 
         this.rp(this.requestOptions).then(body => {
           this.cards = body.cards || body.sets;
@@ -154,18 +150,17 @@ export abstract class Model
   private pegarAsCartas(): Promise<any>
   {
     return new Promise<any>(resolve => {
-      let nome = this.cards[this.recursao.current++];
-      let op = this.requestOptions;
-      op["url"] = `${this.baseUrl}/${this.detailUrl}?name=${nome}`;
 
       if(this.recursao.current >= this.cards.length){
         this.recursao.terminou++;
         if(this.recursao.terminou == this.recursao.totalLoop)
-          resolve(this.inserirNaTabela(this.arrayDosCampos, this.todosItems));
+          resolve(this.inserirNaTabela(this.todosItems));
         return;
       }
 
-      this.rp(op)
+      let nome = this.cards[this.recursao.current++];
+
+      this.request(`${this.baseUrl}/${this.detailUrl}?name=${nome}`)
         .then(body => {
           let arr = this.arrayDosCampos;
           this.fnGetItens({body, arr});
@@ -183,7 +178,7 @@ export abstract class Model
 * @param {string[]} arrayDosCampos - Array contendo o nome dos campos a ser usado.
 * @param {object[]} itens - Array de objetos contento os dados a serem inseridos.
 */
-  protected inserirNaTabela(arrayDosCampos: string[], itens: object[]): void
+  protected inserirNaTabela(itens: object[]): void
   {
     //Testa se tem 'none', '?', ' ', ''.
     let regex = new RegExp(/^\s?none\s?$|\?|^\s+$|^$/g);
@@ -193,16 +188,62 @@ export abstract class Model
         return item[key] && !regex.test(item[key]) ? item[key] : null;
       }));
 
-      this.con.query(`
-        INSERT INTO ${this.tableName} (${arrayDosCampos.join(', ')})
+      await this.con.query(`
+        INSERT INTO ${this.tableName} (${this.arrayDosCampos().join(', ')})
         VALUES (${values})`,
         err => {
-          if(err) console.error(`Erro no insert!\n> ${err}`);
+          if(err) return console.error(`Erro no insert!\n> ${err}`);
         }
       );
     });
     console.log(`Tabela ${this.tableName} semeada com aproximadamente ${itens.length} registros!`);
   }
+
+  protected async request(url: string = this.allUrl): Promise<any>{
+    let op = this.requestOptions;
+    op["url"] = url;
+
+    try{
+      let response = await this.rp(op);
+      return response;
+    }
+    catch(e){
+      throw new Error(e);
+    }
+  }
+
+  /**
+  * Função que liga uma carta com outra tabela com as cartas do cards.
+  * @param {object[]} cartas - Objeto correspondente a uma carta para ser ligada;
+  * @param {string} name - Nome do campo da tabela de ligação;
+  * @param {int} id - Id da tabela ligada;
+  * @return {object[]} - Array de objetos contendo o id do card e banlist.
+  */
+    protected async assignForeign(cartas: object[], opc): Promise<object[]>
+    {
+      let {name, id, ...resto} = opc;
+      let names = cartas.map(card => card["card_name"]);
+      let as = await Card.instance.getByField({field: "name", value: names, limit: 999});
+      let cards: object[] = [];
+
+      await as.forEach(({id: card, name: nomeCarta}) => {
+        let [carta,] = cartas.filter(c => c["card_name"] == nomeCarta);
+        let aux = {};
+
+        for(let key in carta)
+          if(key != "card_name" && key != "set_number" && this.arrayDosCampos().indexOf(`\`${key}\``) != -1)
+            aux[key] = carta[key];
+
+        cards.push({
+          "card": card,
+          [name]: id,
+          ...aux,
+          ...resto
+        });
+      });
+
+      return cards;
+    }
 
 /**
 * Função padrão para pegar separar e guardar os dados que vem da api
@@ -230,23 +271,23 @@ export abstract class Model
 * @return {string} - A query dos campos da tabela.
 */
   private generateQuery(): string{
-    let alowedTypes = ["varchar", "json", "int", "text", "date", "bool", "float"];
+    let alowedTypes = ["varchar", "json", "int", "text", "date", "bool", "float", "fk"];
     let query = ``;
-
-    if(this.tableName != `banCard`)
-      query += `id int NOT NULL AUTO_INCREMENT, PRIMARY KEY (id), `;
 
     for(let key in this.fields){
       if(!alowedTypes.some(itm => key.toLowerCase().search(itm) > -1))
         throw new TypeError(`Chave ${key} não pertence às chaves permitidas!`);
 
-      this.fields[key].map((item) => {
-        query += `${item} ${key}, `;
+      this.fields[key].map(item => {
+        query += `\`${item}\` ${key != `fk`? key : `int`}, `;
       });
     }
 
-    if(this.tableName == `bancard`)
-      query += `FOREIGN KEY card REFERENCES cards(id), FOREIGN KEY banlist REFERENCES banlist(id), `;
+    if(this.fields["fk"])
+      for(let item in this.fields["fk"])
+        query +=`FOREIGN KEY (\`${this.fields["fk"][item]}\`) REFERENCES ${this.fields["fk"][item]}s(id), `;
+    else
+      query = `id int NOT NULL AUTO_INCREMENT, PRIMARY KEY (id), ${query}`;
 
     return query;
   }
@@ -258,13 +299,26 @@ export abstract class Model
 * @return {object[]} - O response formatado se veio da banlist, senão só retorna.
 */
   private formatDate(res: object[]): object[]{
-    if(res[0].hasOwnProperty("start")){
+    if(res && res[0].hasOwnProperty("start")){
       for(let item of res){
         item["start"] = item["start"] ? item["start"].split(/T[0-9]{2}:/g)[0] : null;
         item["end"] = item["end"] ? item["end"].split(/T[0-9]{2}:/g)[0] || item["end"] : null;
       }
     }
     return res;
+  }
+
+/**
+* Gera um array contendo o nome de todos os campos da Model.
+* @return {string[]} - O array dos campos.
+*/
+  private arrayDosCampos(): string[]{
+    let arr = [];
+    for(let key in this.fields)
+      for(let value of this.fields[key])
+        arr.push(`\`${value}\``);
+
+    return arr;
   }
 
 }
