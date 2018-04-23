@@ -57,7 +57,7 @@ export abstract class Model
         if(err) return reject(err);
         let res;
 
-        try{ if(res) res = JSON.parse(JSON.stringify(result)); }
+        try{ res = JSON.parse(JSON.stringify(result)); }
         catch(e){ return reject(e); }
 
         res = this.formatDate(res);
@@ -80,7 +80,7 @@ export abstract class Model
         if(err) return reject(err);
         let res;
 
-        try{ if(res) res = JSON.parse(JSON.stringify(result)); }
+        try{ res = JSON.parse(JSON.stringify(result)); }
         catch(e){ return reject(e); }
 
         res = this.formatDate(res);
@@ -91,7 +91,7 @@ export abstract class Model
 
   /**
   * Cria a tabela no banco de dados,
-  * Usa a variável {object} fields das classes filhas.
+  * Usa a variável fields das classes filhas.
   * Sintaxe:
   * key => {string} Representa o tipo e opções do campo, como null ou tamanho.
   * value => {string[]} Um nome de campo em cada posição.
@@ -126,7 +126,7 @@ export abstract class Model
 
     return new Promise(resolve => {
       this.con.query(`SELECT * FROM ${this.tableName}`, (err, result) => {
-        if(result != null){
+        if(Array.isArray(result) && result.length){
           resolve(1);
           return console.log(`Tabela ${this.tableName} já possui registros!`);
         }
@@ -199,17 +199,15 @@ export abstract class Model
     console.log(`Tabela ${this.tableName} semeada com aproximadamente ${itens.length} registros!`);
   }
 
-  protected async request(url: string = this.allUrl): Promise<any>{
+  protected request(url: string = null): Promise<any>{
     let op = this.requestOptions;
-    op["url"] = url;
+    op["url"] = url || op["url"];
 
-    try{
-      let response = await this.rp(op);
-      return response;
-    }
-    catch(e){
-      throw new Error(e);
-    }
+    return new Promise((resolve, reject) => {
+      this.rp(op)
+      .then(res => resolve(res))
+      .catch(e => reject(e));
+    });
   }
 
   /**
@@ -221,28 +219,31 @@ export abstract class Model
   */
     protected async assignForeign(cartas: object[], opc): Promise<object[]>
     {
-      let {name, id, ...resto} = opc;
-      let names = cartas.map(card => card["card_name"]);
-      let as = await Card.instance.getByField({field: "name", value: names, limit: 999});
-      let cards: object[] = [];
+      try{
+        let {name, id, ...resto} = opc;
+        let names = cartas.map(card => card["card_name"]);
+        let as = await Card.instance.getByField({field: "name", value: names, limit: 999});
+        let cards: object[] = [];
 
-      await as.forEach(({id: card, name: nomeCarta}) => {
-        let [carta,] = cartas.filter(c => c["card_name"] == nomeCarta);
-        let aux = {};
+        await as.forEach(({id: card, name: nomeCarta}) => {
+          let [carta,] = cartas.filter(c => c["card_name"] == nomeCarta);
+          let aux = {};
 
-        for(let key in carta)
-          if(key != "card_name" && key != "set_number" && this.arrayDosCampos().indexOf(`\`${key}\``) != -1)
-            aux[key] = carta[key];
+          for(let key in carta)
+            if(key != "card_name" && key != "set_number" && this.arrayDosCampos().indexOf(`\`${key}\``) != -1)
+              aux[key] = carta[key];
 
-        cards.push({
-          "card": card,
-          [name]: id,
-          ...aux,
-          ...resto
+          cards.push({
+            "card": card,
+            [name]: id,
+            ...aux,
+            ...resto
+          });
         });
-      });
 
-      return cards;
+        return cards;
+      }
+    catch(e){ console.error(`Erro no foreign do ${this.tableName}`, e) }
     }
 
 /**
@@ -299,7 +300,7 @@ export abstract class Model
 * @return {object[]} - O response formatado se veio da banlist, senão só retorna.
 */
   private formatDate(res: object[]): object[]{
-    if(res && res[0].hasOwnProperty("start")){
+    if(Array.isArray(res) && res.length && res[0].hasOwnProperty("start")){
       for(let item of res){
         item["start"] = item["start"] ? item["start"].split(/T[0-9]{2}:/g)[0] : null;
         item["end"] = item["end"] ? item["end"].split(/T[0-9]{2}:/g)[0] || item["end"] : null;

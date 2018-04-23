@@ -26,15 +26,15 @@ export class Banlist extends Model
   }
 
   public seed(): Promise<number> {
-    console.log("Semeando banlists...")
+    console.log("Semeando banlists...");
     return new Promise(resolve => {
       this.con.query(`SELECT * FROM ${this.tableName}`, (err, result) => {
-        if(result != null){
+        if(Array.isArray(result) && result.length){
           resolve(1);
           return console.log(`Tabela ${this.tableName} já possui registros!`);
         }
 
-        this.rp(this.requestOptions).then(body => {
+        this.request().then(body => {
           this.banlists = body.banlists;
 
           let lista = this.pegaItens(body);
@@ -42,7 +42,7 @@ export class Banlist extends Model
 
           this.inserirNaTabela(lista);
         })
-        .catch(err => console.log(`Erro pegando todas ${this.tableName}! \n${Error(err)}`));
+        .catch(err => console.log(`Erro pegando todas ${this.tableName}! \n`, err));
       });
     });
   }

@@ -31,8 +31,8 @@ export class SetCard extends Model {
   public async seed()
   {
 	try{
-      console.log(`Semeando ${this.tableName}...`);
-	
+    console.log(`Semeando ${this.tableName}...`);
+
 	  let sets = await Set.instance.all();
 	  SetCard.instance.bar.start(sets.length, 0);
 
@@ -41,7 +41,7 @@ export class SetCard extends Model {
 
 	  SetCard.instance.inserirNaTabela([].concat(...cartas));
     }
-    catch(e){ console.error(e) }    
+    catch(e){ console.error(`Erro no seed setCard\n`, e) }
   }
 
   public migrate(): Promise<any>{

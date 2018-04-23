@@ -28,17 +28,17 @@ export class BanCard extends Model
   public async seed()
   {
     let _this_ = BanCard.instance;
-	try{
+	  try{
       console.log("Semeando bancards...");
       let cartas = [];
       let lista = await Banlist.instance.all();
 
       let promises = lista.map(_this_.getCardInfo, _this_);
-      let cards = await Promise.all(promises);
+      let cards = await Promise.all<object[][]>(promises);
 
       await _this_.inserirNaTabela([].concat(...cards));
     }
-    catch(e){ console.error(e) }
+    catch(e){ console.error(`Erro no Bancard`, e) }
 
   };
 
@@ -56,7 +56,7 @@ export class BanCard extends Model
       return await this.assignForeign(response["banlist"]["cards"],{"name": "banlist", "id": banlist.id});
     }
     catch(e){
-      console.error(e);
+      console.error(`Erro ne getCardInfo`, e);
       return null;
     }
   }
