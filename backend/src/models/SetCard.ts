@@ -28,20 +28,30 @@ export class SetCard extends Model {
     return this._instance || (this._instance = new SetCard());
   }
 
-  public async seed()
+  public seed(): Promise<number>
   {
-	try{
-    console.log(`Semeando ${this.tableName}...`);
+    return new Promise<number>((resolve, reject) => {
+      this.con.query(`SELECT * FROM ${this.tableName}`, async (err, result) => {
+        if(Array.isArray(result) && result.length){
+          resolve(0);
+          return console.log(`Tabela ${this.tableName} já possui registros!`);
+        }
 
-	  let sets = await Set.instance.all();
-	  SetCard.instance.bar.start(sets.length, 0);
+      	try{
+          console.log(`Semeando ${this.tableName}...`);
 
-	  let cards = sets.map(this.cardInfo);
-	  let cartas = await Promise.all<object[][]>(cards);
+      	  let sets = await Set.instance.all();
+      	  SetCard.instance.bar.start(sets.length, 0);
 
-	  SetCard.instance.inserirNaTabela([].concat(...cartas));
-    }
-    catch(e){ console.error(`Erro no seed setCard\n`, e) }
+      	  let cards = sets.map(this.cardInfo);
+      	  let cartas = await Promise.all<object[][]>(cards);
+
+      	  await SetCard.instance.inserirNaTabela([].concat(...cartas));
+          resolve(1);
+        }
+        catch(e){ console.error(`Erro no seed setCard\n`, e); reject(e); }
+      });
+    });
   }
 
   public migrate(): Promise<any>{

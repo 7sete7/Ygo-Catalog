@@ -16,8 +16,8 @@ export async function generateBD(){
   let banCard: BanCard = BanCard.instance;
   let setCard: SetCard = SetCard.instance;
 
-  // let migrates = [card.migrate(), set.migrate(), bn.migrate(), banCard.migrate(), setCard.migrate()];
-  // await Promise.all(migrates);
+  let migrates = [card.migrate(), set.migrate(), bn.migrate(), banCard.migrate(), setCard.migrate()];
+  await Promise.all(migrates);
 
   let seeds = [card.seed(), bn.seed(), set.seed()];
   await Promise.all(seeds);

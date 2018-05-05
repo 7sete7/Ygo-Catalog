@@ -3,17 +3,20 @@ export default (app, Card) => {
 
   //Get all cards
   app.route('/api/cards/get_all').get(async (req, res) => {
-    return await Card.instance.all();
+    let all = await Card.instance.all();
+	res.send(all);
   });
 
   //Get card info by name
   app.route('/api/cards/name/:name').get(async (req, res) => {
-    return await Card.instance.getByField({field: 'name', value: req.params.name});
+    let card = await Card.instance.getByField({field: 'name', value: req.params.name});
+	res.send(card);
   });
 
   //Get card info by it's number
   app.route('/api/cards/number/:number').get(async (req, res) => {
-    return await Card.instance.getByField({field: 'name', value: req.params.number});
+    let card = await Card.instance.getByField({field: 'number', value: req.params.number});
+	res.send(card);
   });
 
 }

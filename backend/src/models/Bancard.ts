@@ -25,21 +25,30 @@ export class BanCard extends Model
     return this._instance || (this._instance = new BanCard());
   }
 
-  public async seed()
+  public seed(): Promise<number>
   {
     let _this_ = BanCard.instance;
-	  try{
-      console.log("Semeando bancards...");
-      let cartas = [];
-      let lista = await Banlist.instance.all();
+    return new Promise<number>((resolve, reject) => {
+      this.con.query(`SELECT * FROM ${this.tableName}`, async (err, result) => {
+        if(Array.isArray(result) && result.length){
+          resolve(1);
+          return console.log(`Tabela ${this.tableName} já possui registros!`);
+        }
 
-      let promises = lista.map(_this_.getCardInfo, _this_);
-      let cards = await Promise.all<object[][]>(promises);
+    	  try{
+          console.log("Semeando bancards...");
+          let cartas = [];
+          let lista = await Banlist.instance.all();
 
-      await _this_.inserirNaTabela([].concat(...cards));
-    }
-    catch(e){ console.error(`Erro no Bancard`, e) }
+          let promises = lista.map(_this_.getCardInfo, _this_);
+          let cards = await Promise.all<object[][]>(promises);
 
+          await _this_.inserirNaTabela([].concat(...cards));
+          resolve(1);
+        }
+        catch(e){ console.error(`Erro no Bancard`, e); reject(e); }
+      });
+    });
   };
 
   public migrate(): Promise<number> {
