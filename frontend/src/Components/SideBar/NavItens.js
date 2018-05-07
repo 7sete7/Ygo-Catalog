@@ -1,9 +1,9 @@
 export default {
   itens: [
     {
-      url: "/",
-      name: "Lugar",
-      icon: "fa fa-lock",
+      url: "/home",
+      name: "Home",
+      icon: "fa fa-home",
     },
     {
       url: '/about-us',

@@ -4,9 +4,6 @@ import './Style.css';
 
 export default class SidebarHeader extends Component
 {
-  constructor(props){
-    super(props);
-  }
 
   render(){
     return (

@@ -7,8 +7,8 @@ Este projeto visa catalogar de forma simples e elegante coleções de cartas de 
 - Instalar [nodejs](https://nodejs.org/en/download/);
 - Instalar [mysql](https://www.mysql.com/);
 - Criar uma sessão no banco de dados com as credenciais
-> Host: localhost\
-  User: root\
+> Host: localhost
+  User: root
   Password: 1234
 
 - Criar um banco de dados chamado **ygo-catalog**;

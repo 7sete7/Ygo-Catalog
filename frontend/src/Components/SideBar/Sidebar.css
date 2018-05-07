@@ -1,13 +1,16 @@
-#wrapper{
+.sidebar{
   display: flex;
+  flex-direction: column;
+  min-width: 250px;
+  max-width: 250px;
+  min-height: 100%;
+  background-color: #576ce0;
+  transition: all 0.2s;
 }
 
 .sidebar-nav{
-  min-width: 250px;
-  max-width: 250px;
-  height: 100vh;
-  background-color: #576ce0;
-  transition: all 0.4s;
+  position: relative;
+  flex: 1;
 }
 
 .itens{
@@ -21,11 +24,11 @@
   margin: 10px 10px 10px 15px;
 }
 
-.itens a.active{
+.itens.active{
   color: #263d92;
 }
 
-.itens a{
+a.itens{
   text-decoration: none;
   color: #d3e4b1;
   font-family: 'Patua One', cursive;

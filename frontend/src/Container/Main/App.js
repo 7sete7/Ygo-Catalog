@@ -1,16 +1,31 @@
 import React, { Component } from 'react';
-import Card from '../../Components/Card';
+import { Container } from 'reactstrap';
+import { Switch, Route, Redirect } from 'react-router-dom';
+import './Main.css';
+
 import Sidebar from '../../Components/SideBar';
 
-class App extends Component {
-  constructor(props){
-    super(props);
-  };
+import Home from '../../Views/Home';
+import AboutUs from '../../Views/AboutUs';
 
+class App extends Component {
 
   render() {
     return (
-      <Sidebar />
+      <div className="app">
+        <div className="app-body">
+        <Sidebar />
+          <main className="main">
+            <Container fluid>
+              <Switch>
+                <Route path="/home" name="Home" component={Home} />
+                <Route path="/about-us" name="About Us" component={AboutUs} />
+                <Redirect exact from="/" to="/home" />
+              </Switch>
+            </Container>
+          </main>
+        </div>
+      </div>
     );
   }
 

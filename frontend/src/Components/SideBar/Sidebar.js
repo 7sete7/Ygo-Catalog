@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink } from 'reactstrap';
+import { Nav, NavItem } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import './Sidebar.css';
 import 'font-awesome/css/font-awesome.min.css'
@@ -23,9 +23,9 @@ export default class Sidebar extends Component
 
   render(){
     return (
-      <div id="wrapper">
+      <div className="sidebar">
+        <SidebarHeader />
         <nav className="sidebar-nav">
-          <SidebarHeader />
           <Nav>
             {this.item(nav.itens)}
           </Nav>
@@ -37,19 +37,17 @@ export default class Sidebar extends Component
   item(itens){
     return itens.map((item, key) => {
       return (
-        <div key={key} className="itens">
+        <Link to={item.url} className={this.isCurrent(item)} key={key}>
           <NavItem>
-            <Link to={item.url} className={this.isCurrent(item)}>
-              <span className={item.icon}></span>&nbsp;
-              {item.name}
-            </Link>
+            <span className={item.icon}></span>&nbsp;
+            {item.name}
           </NavItem>
-        </div>
+        </Link>
       );
     });
   }
 
   isCurrent({url}){
-    return window.location.hash.substring(1) == url ? "active" : "";
+    return window.location.hash.substring(1) === url ? "active itens" : "itens";
   }
 }

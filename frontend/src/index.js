@@ -9,8 +9,7 @@ import Main from './Container/Main';
 ReactDOM.render((
   <HashRouter>
     <Switch>
-      <Route exact path="/" component={Main} name="Home"/>
-      <Route exact path="/about-us" component={Main} name="About Us"/>
+      <Route path="/" component={Main} name="Home"/>
     </Switch>
   </HashRouter>
 ), document.getElementById('root'));
