@@ -51,9 +51,9 @@ export abstract class Model
   /**
   * Retorna todos registros da tabela
   */
-  public all(): Promise<any> {
+  public all(orderBy = ""): Promise<any> {
     return new Promise((resolve, reject) => {
-      con.query(`${this.SELECTALL}`, (err, result) => {
+      con.query(`${this.SELECTALL} ${orderBy? `ORDER BY ${orderBy}`: ""}`, (err, result) => {
         if(err) return reject(err);
         let res;
 
@@ -70,13 +70,18 @@ export abstract class Model
   * Retorna o primeiro registro da tabela cujo @param field for igual ao @param value .
   * @param {string} field - O campo a ser pesquisado;
   * @param {any} value - O valor que será pesquisado;
+  * @param {string} orderBy - O campo a que se deve ser ordenado, junto com asc ou desc;
   * @return {object} O objeto representado o registro da tabela,
   * retorna um objeto vazio se não encontrar.
   */
-  public getByField({field, value, limit = 1}): Promise<any>{
+  public getByField({field, value, limit = 1, orderBy}): Promise<any>{
+    let query = `${this.SELECTALL}
+        ${value && Array.isArray(value) && value.length ? `WHERE ${field} IN (${value.join()})`: "" }
+        ${orderBy? `WHERE ${orderBy.split(/\s/)[0]} IS NOT NULL ORDER BY ${orderBy}`: ""}
+        LIMIT ${limit}`;
+
     return new Promise((resolve, reject) => {
-      con.query(`${this.SELECTALL} WHERE ${field} IN (?) LIMIT ${limit}`, [value],
-      (err, result) => {
+      con.query(query, (err, result) => {
         if(err) return reject(err);
         let res;
 

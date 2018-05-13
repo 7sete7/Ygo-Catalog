@@ -1,7 +1,7 @@
 {
-  "name": "ygo-catalog",
+  "name": "Api",
   "version": "1.0.0",
-  "description": "Catalogo",
+  "description": "Yugioh API",
   "main": "index.js",
   "scripts": {},
   "keywords": [

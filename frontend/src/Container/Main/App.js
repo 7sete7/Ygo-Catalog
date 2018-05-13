@@ -16,13 +16,11 @@ class App extends Component {
         <div className="app-body">
         <Sidebar />
           <main className="main">
-            <Container fluid>
-              <Switch>
-                <Route path="/home" name="Home" component={Home} />
-                <Route path="/about-us" name="About Us" component={AboutUs} />
-                <Redirect exact from="/" to="/home" />
-              </Switch>
-            </Container>
+            <Switch>
+              <Route path="/home" name="Home" component={Home} />
+              <Route path="/about-us" name="About Us" component={AboutUs} />
+              <Redirect exact from="/" to="/home" />
+            </Switch>
           </main>
         </div>
       </div>

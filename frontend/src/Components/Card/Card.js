@@ -22,8 +22,7 @@ export default class Card extends Component
     else{
       return(
         <div>
-          <div>Card name: {this.state.card.name}</div>
-          <div>Card number: {this.state.card.number}</div>
+          <img src={{this.state.card.image_path}} alt="Carta" />
         </div>
       )
     }

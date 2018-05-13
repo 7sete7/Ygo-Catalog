@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import Carousel from 'react-slick';
+import { Container } from 'reactstrap';
+import env from '../../config';
 import './css.css';
 
 export default class Slider extends Component
@@ -7,35 +9,55 @@ export default class Slider extends Component
   constructor(props){
     super(props);
     this.slider_settings = {
-      dots: true,
+      dots: false,
       infinite: true,
-      slidesToShow: 3,
-      slidesToScroll: 1,
-	  adaptiveHeight: false,
-	  focusOnSelect: true,
+      slidesToShow: 8,
+      slidesToScroll: 3,
+  	  adaptiveHeight: false,
+  	  focusOnSelect: true,
+      centerMode: true,
+      autoplaySpeed: 2500,
+      autoplay: true,
+      speed: 2500,
+      pauseOnFocus: true,
     }
+    this.state = {cards: null};
+  }
+
+  componentDidMount(){
+    if(env.CACHE.keys().indexOf("slider_cards") < 0){
+      fetch(`${env.API_URL}/cards?orderBy=price_high&limit=30`)
+      .then(res => res.json())
+      .then(json => this.setState({cards: env.CACHE.put("slider_cards", json, 10 * 60 * 60 * 1000)}))
+      .catch(e => console.log(e));
+    }
+    else
+      this.setState({cards: env.CACHE.get("slider_cards")});
   }
 
   render(){
-    return (
-      <Carousel {...this.slider_settings}>
-        <div>
-          <img src="https://avatars1.githubusercontent.com/u/6656555" />
-          <p>Leo</p>
+    if(!this.state.cards){
+      return(
+        <Carousel {...this.slider_settings}>
+          <div className="text-center">Carregando!</div>
+        </Carousel>
+    )}
+    else{
+      return(
+        <Carousel {...this.slider_settings} className="slider">
+          {this.thumbs()}
+        </Carousel>
+      )
+    }
+  }
+
+  thumbs(){
+    return this.state.cards.map((card, key) => {
+      return (
+        <div key={key}>
+          <img src={card.image_path} alt="Imagem" width="110px"/>
         </div>
-        <div>
-          <img src="https://avatars0.githubusercontent.com/u/31394736" />
-          <p>Du</p>
-        </div>
-		<div>
-          <img src="https://avatars1.githubusercontent.com/u/6656555" />
-          <p>Leo</p>
-        </div>
-        <div>
-          <img src="https://avatars0.githubusercontent.com/u/31394736" />
-          <p>Du</p>
-        </div>
-      </Carousel>
-    );
+      )
+    });
   }
 }

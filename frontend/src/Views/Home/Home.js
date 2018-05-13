@@ -5,14 +5,11 @@ import Slider from '../../Components/Slider';
 
 export default class Home extends Component
 {
-  constructor(props){
-    super(props);
-  }
 
   render(){
     return (
-      <Container>
-        
+      <Container fluid className="p-0">
+        <Slider />
       </Container>
     );
   }

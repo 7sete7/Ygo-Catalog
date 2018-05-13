@@ -3,20 +3,29 @@ export default (app, Card) => {
 
   //Get all cards
   app.route('/api/cards/get_all').get(async (req, res) => {
-    let all = await Card.instance.all();
-	res.send(all);
+    console.log(`GET ${req.originalUrl}`);
+
+    let all = await Card.instance.all(req.query.orderBy || null);
+    res.json(all);
   });
 
-  //Get card info by name
-  app.route('/api/cards/name/:name').get(async (req, res) => {
-    let card = await Card.instance.getByField({field: 'name', value: req.params.name});
-	res.send(card);
-  });
+  //Exemplo: /api/cards?orderBy=attack%20asc&limit=20
+  //Pega as 20 cartas com maior attack
+  app.route('/api/cards/:field?/:value?').get(async (req, res) => {
+    console.log(`GET ${req.originalUrl}`);
 
-  //Get card info by it's number
-  app.route('/api/cards/number/:number').get(async (req, res) => {
-    let card = await Card.instance.getByField({field: 'number', value: req.params.number});
-	res.send(card);
+    try{
+      let card = await Card.instance.getByField({
+        field:   req.params.field    || null,
+        value:   req.params.value    || null,
+        orderBy: req.query.orderBy   || null,
+        limit:   req.query.limit     || null
+      });
+      res.json(card);
+    }
+    catch(e){
+      res.send("Deu erro!" + e.message)
+    }
   });
 
 }
