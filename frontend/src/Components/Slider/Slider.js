@@ -25,14 +25,14 @@ export default class Slider extends Component
   }
 
   componentDidMount(){
-    if(env.CACHE.keys().indexOf("slider_cards") < 0){
+    if(!env.CACHE.keys()["cards"]){
       fetch(`${env.API_URL}/cards?orderBy=price_high&limit=30`)
       .then(res => res.json())
-      .then(json => this.setState({cards: env.CACHE.put("slider_cards", json, 10 * 60 * 60 * 1000)}))
+      .then(json => this.setState({cards: env.CACHE.put("cards", json, 10 * 60 * 60 * 1000)}))
       .catch(e => console.log(e));
     }
     else
-      this.setState({cards: env.CACHE.get("slider_cards")});
+      this.setState({cards: env.CACHE.get("cards")});
   }
 
   render(){

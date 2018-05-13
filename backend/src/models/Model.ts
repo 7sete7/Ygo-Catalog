@@ -74,7 +74,7 @@ export abstract class Model
   * @return {object} O objeto representado o registro da tabela,
   * retorna um objeto vazio se não encontrar.
   */
-  public getByField({field, value, limit = 1, orderBy}): Promise<any>{
+  public getByField({field, value, limit = 1, orderBy = null}): Promise<any>{
     let query = `${this.SELECTALL}
         ${value && Array.isArray(value) && value.length ? `WHERE ${field} IN (${value.join()})`: "" }
         ${orderBy? `WHERE ${orderBy.split(/\s/)[0]} IS NOT NULL ORDER BY ${orderBy}`: ""}

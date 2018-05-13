@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Container } from 'reactstrap';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import './Main.css';
 

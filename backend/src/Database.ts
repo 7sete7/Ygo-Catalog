@@ -5,7 +5,7 @@ import { BanCard } from './models/BanCard';
 import { SetCard } from './models/SetCard';
 import { mysql, app } from './index';
 import routes from './routes/index';
-import env from '../../env';
+import * as env from '../env';
 
 /**
 * Aqui onde as models são chamadas.
