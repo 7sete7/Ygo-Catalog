@@ -76,10 +76,10 @@ export abstract class Model
   */
   public getByField({field, value, limit = 1, orderBy = null}): Promise<any>{
     let query = `${this.SELECTALL}
-        ${value && Array.isArray(value) && value.length ? `WHERE ${field} IN (${value.join()})`: "" }
+        ${value  ? `WHERE ${field} IN (${value.map(v=>`'${v}'`).join()})`: "" }
         ${orderBy? `WHERE ${orderBy.split(/\s/)[0]} IS NOT NULL ORDER BY ${orderBy}`: ""}
-        LIMIT ${limit}`;
-
+        LIMIT ${limit || 1}`;
+        console.log(query);
     return new Promise((resolve, reject) => {
       con.query(query, (err, result) => {
         if(err) return reject(err);

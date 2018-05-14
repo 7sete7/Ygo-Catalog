@@ -16,15 +16,16 @@ export default (app, Card) => {
 
     try{
       let card = await Card.instance.getByField({
-        field:   req.params.field    || null,
-        value:   req.params.value    || null,
-        orderBy: req.query.orderBy   || null,
-        limit:   req.query.limit     || null
+        field:   req.params.field                       || null,
+        value:   req.params.value ? [req.params.value]   : null,
+        orderBy: req.query.orderBy                      || null,
+        limit:   req.query.limit                        || null
       });
       res.json(card);
     }
     catch(e){
-      res.send("Deu erro!" + e.message)
+      console.error(e);
+      res.send(e)
     }
   });
 
