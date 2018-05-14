@@ -13,8 +13,10 @@ export default class Card_Info extends Component
       let carta = env.CACHE.get("cards").filter(c => c.name === this.props.name);
 
       if(!carta || !carta.length){
-        let [,c] = await this.getCarta();
-        this.setState({ card: env.CACHE.put("cards", c, 10 * 60 * 60 * 1000) });
+        let [c,] = await this.getCarta();
+        let aux = env.CACHE.get("cards");
+        this.setState({ card: aux.push(c) });
+        env.CACHE.put("cards", aux, 8 * 60 * 60 * 1000);
       }
       else
         this.setState({ card: carta });
