@@ -14,7 +14,7 @@ export default class Slider extends Component
       slidesToShow: 8,
       slidesToScroll: 3,
   	  adaptiveHeight: false,
-  	  focusOnSelect: true,
+  	  focusOnSelect: false,
       centerMode: true,
       autoplaySpeed: 2500,
       autoplay: true,
@@ -25,14 +25,22 @@ export default class Slider extends Component
   }
 
   componentDidMount(){
-    if(env.CACHE.keys().indexOf("cards") < 0){
+    if(!env.CACHE.get("cards")){
       fetch(`${env.API_URL}/cards?orderBy=price_high&limit=10`)
-      .then(res => res.json())
-      .then(json => this.setState({cards: env.CACHE.put("cards", json, 10 * 60 * 60 * 1000)}))
-      .catch(e => console.log(e));
+        .then(res => res.json())
+        .then(json => {
+          let cardsCache = env.CACHE.add({key: "cards", value: json, time: 10 * 60 * 60 * 1000});
+          this.setState({cards: cardsCache});
+        })
+        .catch(e => console.log(e));
     }
     else
-      this.setState({cards: env.CACHE.get("cards")});
+      this.setState({cards: env.CACHE.deepGet("cards", null, cartas => {
+        return cartas
+        .concat()
+        .sort((a, b) => a.price_high - b.price_high)
+        .slice(0, 20);
+      })});
   }
 
   render(){
@@ -55,7 +63,7 @@ export default class Slider extends Component
     return this.state.cards.map((card, key) => {
       return (
         <div key={key}>
-          <img src={card.image_path} alt="Imagem" width="110px"/>
+          <img src={card.image_path} alt="Imagem" width="110px" onClick={(e) => this.props.onImageClick(e, card)}/>
         </div>
       )
     });

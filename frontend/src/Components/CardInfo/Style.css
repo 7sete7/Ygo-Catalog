@@ -1,0 +1,16 @@
+.cardInfo{
+  background-color: #7a7f82;
+  border: 1px solid #060606;
+}
+
+.linkCarta{
+  position: absolute;
+  bottom: 10px;
+  right: 20px;
+  float: left;
+  margin: 0px 20px 10px 0px;
+}
+
+.linkCarta a {
+  color: #fff;
+}

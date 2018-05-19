@@ -6,13 +6,22 @@ import CardInfo from '../../Components/CardInfo';
 
 export default class Home extends Component
 {
+  constructor(props){
+    super(props);
+    this.state = { cardInfoCard: null };
+    this.onImageClick = this.onImageClick.bind(this);
+  }
 
   render(){
     return (
       <Container fluid className="p-0">
-        <CardInfo name="Metal Fish"/>
-        <Slider />
+        <CardInfo card={this.state.cardInfoCard}/>
+        <Slider onImageClick={this.onImageClick}/>
       </Container>
     );
+  }
+
+  onImageClick(e, data){
+    this.setState({ cardInfoCard: data });
   }
 }
