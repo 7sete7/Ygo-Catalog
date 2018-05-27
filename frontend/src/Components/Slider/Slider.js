@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Carousel from 'react-slick';
-import { Container } from 'reactstrap';
-import env from '../../config';
+import conf from '../../config';
+import axios from 'axios';
 import './css.css';
 
 export default class Slider extends Component
@@ -15,7 +15,7 @@ export default class Slider extends Component
       slidesToScroll: 3,
   	  adaptiveHeight: false,
   	  focusOnSelect: false,
-      centerMode: true,
+      centerMode: false,
       autoplaySpeed: 2500,
       autoplay: true,
       speed: 2500,
@@ -25,22 +25,22 @@ export default class Slider extends Component
   }
 
   componentDidMount(){
-    if(!env.CACHE.get("cards")){
-      fetch(`${env.API_URL}/cards?orderBy=price_high&limit=10`)
-        .then(res => res.json())
-        .then(json => {
-          let cardsCache = env.CACHE.add({key: "cards", value: json, time: 10 * 60 * 60 * 1000});
+    if(!conf.CACHE.get("cards") || (conf.CACHE.get("cards") && conf.CACHE.get("cards").length < 10)){
+      axios.get(`${conf.API_URL}/cards?orderBy=price_high%20desc&limit=10`)
+        .then(({data}) => {
+          let cardsCache = conf.CACHE.add({key: "cards", value: data, time: 10 * 60 * 60 * 1000});
           this.setState({cards: cardsCache});
         })
         .catch(e => console.log(e));
     }
     else
-      this.setState({cards: env.CACHE.deepGet("cards", null, cartas => {
+      this.setState({cards: conf.CACHE.deepGet("cards", null, cartas => {
         return cartas
         .concat()
-        .sort((a, b) => a.price_high - b.price_high)
+        .sort((a, b) => b.price_high - a.price_high)
         .slice(0, 20);
       })});
+    this.props.whenLoaded(this.state.cards);
   }
 
   render(){
@@ -53,13 +53,13 @@ export default class Slider extends Component
     else{
       return(
         <Carousel {...this.slider_settings} className="slider">
-          {this.thumbs()}
+          {this.initCards()}
         </Carousel>
       )
     }
   }
 
-  thumbs(){
+  initCards(){
     return this.state.cards.map((card, key) => {
       return (
         <div key={key}>

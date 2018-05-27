@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 
 export default class Card extends Component
 {
@@ -29,9 +30,8 @@ export default class Card extends Component
   }
 
   async getCard(){
-    let response = await fetch(`http://localhost:8080/api/cards/name/${this.props.name}`);
-    let card = await response.json();
-    console.log(card);
-    return card;
+    let response = await axios.get(`http://localhost:8080/api/cards/name/${this.props.name}`);
+    console.log(response);
+    return response.data;
   }
 }

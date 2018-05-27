@@ -1,0 +1,6 @@
+{
+  "name": "MetroSidebar",
+  "version": "0.1.0",
+  "private": false,
+  "main": "./MetroSidebar.js"
+}

@@ -1,16 +1,32 @@
 .cardInfo{
-  background-color: #7a7f82;
-  border: 1px solid #060606;
+  background-color: #404040;
+  border-bottom: 1px solid #060606;
+  border-top: 1px solid #060606;
 }
 
-.linkCarta{
-  position: absolute;
-  bottom: 10px;
-  right: 20px;
-  float: left;
-  margin: 0px 20px 10px 0px;
+.grow{
+  display: inline;
+}
+
+.cardInfo span.col-4{
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  font-family: "Open Sans", sans-serif;
+  margin-right: -20px;
+}
+
+span .value{
+  color: rgba(239, 239, 243, .83);
+  font-size: 13px;
+  margin-left: 20px;
+  font-weight: 600;
+  display: list-item;
 }
 
 .linkCarta a {
-  color: #fff;
+  color: rgba(239, 239, 243, .83);
+  float: right!important;
+  font-size: 1.3em;
+  margin-top: -15px;
 }

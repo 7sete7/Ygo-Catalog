@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import './Main.css';
 
-import Sidebar from '../../Components/SideBar';
+// import Sidebar from '../../Components/SideBar';
+ import MetroSidebar from '../../Components/MetroSidebar';
 
 import Home from '../../Views/Home';
 import AboutUs from '../../Views/AboutUs';
@@ -13,7 +14,7 @@ class App extends Component {
     return (
       <div className="app">
         <div className="app-body">
-        <Sidebar />
+          <MetroSidebar />
           <main className="main">
             <Switch>
               <Route path="/home" name="Home" component={Home} />
