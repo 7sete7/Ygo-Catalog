@@ -8,167 +8,172 @@ function Loading() {
 }
 
 const Breadcrumbs = Loadable({
-  loader: () => import('./views/Base/Breadcrumbs'),
+  loader: () => import('./Components/Template/Base/Breadcrumbs'),
   loading: Loading,
 });
 
 const Cards = Loadable({
-  loader: () => import('./views/Base/Cards'),
+  loader: () => import('./Components/Template/Base/Cards'),
   loading: Loading,
 });
 
 const Carousels = Loadable({
-  loader: () => import('./views/Base/Carousels'),
+  loader: () => import('./Components/Template/Base/Carousels'),
   loading: Loading,
 });
 
 const Collapses = Loadable({
-  loader: () => import('./views/Base/Collapses'),
+  loader: () => import('./Components/Template/Base/Collapses'),
   loading: Loading,
 });
 
 const Dropdowns = Loadable({
-  loader: () => import('./views/Base/Dropdowns'),
+  loader: () => import('./Components/Template/Base/Dropdowns'),
   loading: Loading,
 });
 
 const Forms = Loadable({
-  loader: () => import('./views/Base/Forms'),
+  loader: () => import('./Components/Template/Base/Forms'),
   loading: Loading,
 });
 
 const Jumbotrons = Loadable({
-  loader: () => import('./views/Base/Jumbotrons'),
+  loader: () => import('./Components/Template/Base/Jumbotrons'),
   loading: Loading,
 });
 
 const ListGroups = Loadable({
-  loader: () => import('./views/Base/ListGroups'),
+  loader: () => import('./Components/Template/Base/ListGroups'),
   loading: Loading,
 });
 
 const Navbars = Loadable({
-  loader: () => import('./views/Base/Navbars'),
+  loader: () => import('./Components/Template/Base/Navbars'),
   loading: Loading,
 });
 
 const Navs = Loadable({
-  loader: () => import('./views/Base/Navs'),
+  loader: () => import('./Components/Template/Base/Navs'),
   loading: Loading,
 });
 
 const Paginations = Loadable({
-  loader: () => import('./views/Base/Paginations'),
+  loader: () => import('./Components/Template/Base/Paginations'),
   loading: Loading,
 });
 
 const Popovers = Loadable({
-  loader: () => import('./views/Base/Popovers'),
+  loader: () => import('./Components/Template/Base/Popovers'),
   loading: Loading,
 });
 
 const ProgressBar = Loadable({
-  loader: () => import('./views/Base/ProgressBar'),
+  loader: () => import('./Components/Template/Base/ProgressBar'),
   loading: Loading,
 });
 
 const Switches = Loadable({
-  loader: () => import('./views/Base/Switches'),
+  loader: () => import('./Components/Template/Base/Switches'),
   loading: Loading,
 });
 
 const Tables = Loadable({
-  loader: () => import('./views/Base/Tables'),
+  loader: () => import('./Components/Template/Base/Tables'),
   loading: Loading,
 });
 
 const Tabs = Loadable({
-  loader: () => import('./views/Base/Tabs'),
+  loader: () => import('./Components/Template/Base/Tabs'),
   loading: Loading,
 });
 
 const Tooltips = Loadable({
-  loader: () => import('./views/Base/Tooltips'),
+  loader: () => import('./Components/Template/Base/Tooltips'),
   loading: Loading,
 });
 
 const BrandButtons = Loadable({
-  loader: () => import('./views/Buttons/BrandButtons'),
+  loader: () => import('./Components/Template/Buttons/BrandButtons'),
   loading: Loading,
 });
 
 const ButtonDropdowns = Loadable({
-  loader: () => import('./views/Buttons/ButtonDropdowns'),
+  loader: () => import('./Components/Template/Buttons/ButtonDropdowns'),
   loading: Loading,
 });
 
 const ButtonGroups = Loadable({
-  loader: () => import('./views/Buttons/ButtonGroups'),
+  loader: () => import('./Components/Template/Buttons/ButtonGroups'),
   loading: Loading,
 });
 
 const Buttons = Loadable({
-  loader: () => import('./views/Buttons/Buttons'),
+  loader: () => import('./Components/Template/Buttons/Buttons'),
   loading: Loading,
 });
 
 const Charts = Loadable({
-  loader: () => import('./views/Charts'),
+  loader: () => import('./Components/Template/Charts'),
   loading: Loading,
 });
 
+// const Dashboard = Loadable({
+//   loader: () => import('./Components/Template/Dashboard'),
+//   loading: Loading,
+// });
+
 const Dashboard = Loadable({
-  loader: () => import('./views/Dashboard'),
+  loader: () => import('./views/Pages/Dashboard'),
   loading: Loading,
 });
 
 const CoreUIIcons = Loadable({
-  loader: () => import('./views/Icons/CoreUIIcons'),
+  loader: () => import('./Components/Template/Icons/CoreUIIcons'),
   loading: Loading,
 });
 
 const Flags = Loadable({
-  loader: () => import('./views/Icons/Flags'),
+  loader: () => import('./Components/Template/Icons/Flags'),
   loading: Loading,
 });
 
 const FontAwesome = Loadable({
-  loader: () => import('./views/Icons/FontAwesome'),
+  loader: () => import('./Components/Template/Icons/FontAwesome'),
   loading: Loading,
 });
 
 const SimpleLineIcons = Loadable({
-  loader: () => import('./views/Icons/SimpleLineIcons'),
+  loader: () => import('./Components/Template/Icons/SimpleLineIcons'),
   loading: Loading,
 });
 
 const Alerts = Loadable({
-  loader: () => import('./views/Notifications/Alerts'),
+  loader: () => import('./Components/Template/Notifications/Alerts'),
   loading: Loading,
 });
 
 const Badges = Loadable({
-  loader: () => import('./views/Notifications/Badges'),
+  loader: () => import('./Components/Template/Notifications/Badges'),
   loading: Loading,
 });
 
 const Modals = Loadable({
-  loader: () => import('./views/Notifications/Modals'),
+  loader: () => import('./Components/Template/Notifications/Modals'),
   loading: Loading,
 });
 
 const Colors = Loadable({
-  loader: () => import('./views/Theme/Colors'),
+  loader: () => import('./Components/Template/Theme/Colors'),
   loading: Loading,
 });
 
 const Typography = Loadable({
-  loader: () => import('./views/Theme/Typography'),
+  loader: () => import('./Components/Template/Theme/Typography'),
   loading: Loading,
 });
 
 const Widgets = Loadable({
-  loader: () => import('./views/Widgets/Widgets'),
+  loader: () => import('./Components/Template/Widgets/Widgets'),
   loading: Loading,
 });
 
