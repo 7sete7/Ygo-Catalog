@@ -1,0 +1,47 @@
+.cardImg{
+  width: 30%;
+  height: 30%;
+}
+
+.icon-sword{
+  background-image: url('../../assets/icons/sword.svg');
+}
+
+.icon-shield{
+  background-image: url('../../assets/icons/shield.svg');
+}
+
+.icons{
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 25px;
+  height: 25px;
+  margin-right: 5px;
+  display: inline-block;
+}
+
+.value{
+  margin-left: 5px;
+  display: inline;
+}
+
+/* Makes card img smaller in bigger screens, PC */
+@media screen and (min-width: 600px){
+  .cardImg{
+    width: 20%;
+    height: 20%;
+    flex-grow: 0;
+  }
+
+  .icons{
+    width: 30px;
+    height: 30px;
+    display: block;
+  }
+
+  .value{
+    display: list-item;
+    margin-left: 2px;
+  }
+}

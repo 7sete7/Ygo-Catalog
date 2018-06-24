@@ -14,15 +14,26 @@ import {
   AppSidebarMinimizer,
   AppSidebarNav,
 } from '@coreui/react';
-// sidebar nav config
+
 import navigation from '../../_nav';
-// routes config
+
 import routes from '../../routes';
 import DefaultAside from './DefaultAside';
 import DefaultFooter from './DefaultFooter';
 import DefaultHeader from './DefaultHeader';
+//============================================
+import Slider from '../../Components/Slider';
+import CardInfo from '../../Components/CardInfo';
 
 class DefaultLayout extends Component {
+  constructor(props){
+    super(props);
+    this.state = { cardInfoCard: null, initialCard: null };
+
+    this.onImageClick = this.onImageClick.bind(this);
+    this.initial = this.initial.bind(this);
+  }
+
   render() {
     return (
       <div className="app">
@@ -61,6 +72,14 @@ class DefaultLayout extends Component {
         </AppFooter>
       </div>
     );
+  }
+
+  onImageClick(e, data){
+    this.setState({ cardInfoCard: data });
+  }
+
+  initial(data){
+    this.setState({ initialCard: data });
   }
 }
 

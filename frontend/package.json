@@ -1,15 +1,13 @@
 {
-  "name": "@coreui/coreui-free-react-admin-template",
-  "version": "2.0.4",
-  "description": "CoreUI React Open Source Bootstrap 4 Admin Template",
-  "author": "Łukasz Holeczek",
-  "homepage": "https://coreui.io",
-  "copyright": "Copyright 2018 creativeLabs Łukasz Holeczek",
+  "name": "YGO",
+  "version": "1.0.0",
+  "description": "Catalogo de cartas de Yugioh",
+  "author": "Leonardo Viva",
   "license": "MIT",
-  "private": true,
+  "private": false,
   "repository": {
     "type": "git",
-    "url": "git@github.com:coreui/coreui-free-react-admin-template.git"
+    "url": "https://github.com/7sete7/Ygo-Catalog"
   },
   "dependencies": {
     "@coreui/coreui": "^2.0.2",
@@ -50,8 +48,5 @@
     "build": "npm-run-all build-css build-js",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
-  },
-  "bugs": {
-    "url": "https://github.com/coreui/coreui-free-react-admin-template/issues"
   }
 }

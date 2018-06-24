@@ -1,0 +1,18 @@
+.sidebar-header{
+  padding: 20px;
+  font-family: 'Patua One', cursive;
+}
+
+.sidebar-header a{
+  color: white;
+}
+
+.sidebar-header a:hover{
+  color: white;
+  text-decoration: none;
+}
+
+.header-hr{
+  border: 1px solid #56595b;
+  margin-bottom: 0!important;
+}
