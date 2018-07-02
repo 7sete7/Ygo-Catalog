@@ -1,4 +1,4 @@
-module.exports = {
+module.exports = (process && process.env) || {
 	API_PORT:     8080          ,
 
 	DB_NAME:     "ygo-catalog"  ,

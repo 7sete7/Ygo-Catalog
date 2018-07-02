@@ -21,4 +21,20 @@ export class User extends Model {
   public static get instance(): User{
     return this._instance || (this._instance = new User());
   }
+
+  public get getFields(): object{
+    return this.fields;
+  }
+
+  public inserirNaTabela(itens: object[]): void{
+    return super.inserirNaTabela(itens);
+  }
+
+  public seed(): Promise<any>{
+    return super.semear();
+  }
+
+  public migrate(): Promise<any>{
+    return super.migrar();
+  }
 }

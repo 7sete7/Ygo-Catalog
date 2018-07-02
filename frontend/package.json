@@ -29,6 +29,7 @@
     "react-loadable": "^5.4.0",
     "react-router-config": "^1.0.0-beta.4",
     "react-router-dom": "^4.3.1",
+    "react-slick": "^0.23.1",
     "react-test-renderer": "^16.4.0",
     "reactstrap": "^6.1.0",
     "simple-line-icons": "^2.4.1"
@@ -42,7 +43,7 @@
   "scripts": {
     "build-css": "node-sass-chokidar --include-path ./node_modules ./src/scss -o ./src/scss",
     "watch-css": "npm run build-css && node-sass-chokidar --include-path ./node_modules ./src/scss -o ./src/scss --watch --recursive",
-    "start-js": "react-scripts start",
+    "start-js": "react-scripts start --require dotenv/config index.js",
     "start": "npm-run-all -p watch-css start-js",
     "build-js": "react-scripts build",
     "build": "npm-run-all build-css build-js",

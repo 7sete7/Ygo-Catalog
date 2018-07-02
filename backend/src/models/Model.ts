@@ -76,7 +76,9 @@ export abstract class Model
   */
   public getByField({field, value, limit = 1, orderBy = null}): Promise<any>{
     let query = `${this.SELECTALL}
-        ${value  ? `WHERE ${field} IN (${value.map(v=>`'${v}'`).join()})`: "" }
+        ${value  ? `WHERE ${field} IN (${(Array.isArray(value)? value : Array.of(value))
+          .map(v=>`'${v}'`).join()})`: ""
+        }
         ${orderBy? `WHERE ${orderBy.split(/\s/)[0]} IS NOT NULL ORDER BY ${orderBy}`: ""}
         LIMIT ${limit || 1}`;
         console.log(query);
@@ -93,6 +95,18 @@ export abstract class Model
       });
     });
   }
+
+  // public insert(income: object): Promise<boolean>{
+  //   const campos: string[] = [].concat(...Object.values(this.fields));
+  //   const data = {};
+  //
+  //   fields.forEach(item => data[item] = income[item]);
+  //   let query = `INSERT INTO '${this.tableName}' (${this.arrayDosCampos()}) VALUES (?)`;
+  //
+  //   return new Promise((resolve, reject) => {
+  //     con.query(query, [data])
+  //   });
+  // }
 
   /**
   * Cria a tabela no banco de dados,

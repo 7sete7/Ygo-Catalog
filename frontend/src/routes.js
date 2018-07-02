@@ -123,7 +123,7 @@ const Charts = Loadable({
 // });
 
 const Dashboard = Loadable({
-  loader: () => import('./views/Pages/Dashboard'),
+  loader: () => import('./views/Dashboard'),
   loading: Loading,
 });
 

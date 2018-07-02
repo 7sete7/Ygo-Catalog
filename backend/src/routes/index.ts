@@ -1,9 +1,10 @@
 import cardRoutes from './card_routes';
-import setRoutes from './set_routes';
-import { Card } from '../models/Card';
-import { Set } from '../models/Set';
+import setRoutes from  './set_routes';
+import userRoutes from './user_routes';
 
-export default (app, db) => {
-  cardRoutes(app, Card);
-  setRoutes(app, Set);
+
+export default (db) => {
+  cardRoutes();
+  setRoutes();
+  userRoutes();
 }

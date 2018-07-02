@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { Container } from 'reactstrap';
 
-import Slider from '../../../Components/Slider';
-import CardInfo from '../../../Components/CardInfo';
+import Slider from '../../Components/Slider';
+import CardInfo from '../../Components/CardInfo';
 
 export default class Home extends Component
 {

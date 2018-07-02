@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import Carousel from 'react-slick';
 import conf from '../../config';
-// import axios from 'axios';
 import './css.css';
 
 export default class Slider extends Component
