@@ -1,45 +1,57 @@
 import { app } from '../index';
 import { User } from '../models';
+import IUser from '../interfaces/IUser';
+import bcrypt = require('bcryptjs');
 
 export default () => {
-
-  //Get all users
-  app.route('/api/user/get_all').get(async (req, res) => {
-    console.log(`GET ${req.originalUrl}`);
-
-    User.instance.all(req.query.orderBy || null)
-    .then(users => res.status(200).json(users))
-    .catch(e => res.sendStatus(500));
-  });
-
-  //Get user info by it's id
-  app.route('/api/user/:id').get(async (req, res) => {
-    console.log(`GET ${req.originalUrl}`);
-
-    User.instance.getByField({
-      field:   'id',
-      value:   req.params.id,
-      orderBy: req.query.orderBy || null
-    })
-    .then(user => res.status(200).json(user))
-    .catch(e => res.sendStatus(500));
-  });
-
-  app.route('/api/user').post((req, res) => {
-    console.log(`POST ${req.originalUrl}`);
-
-    const fields: string[] = [].concat(...Object.values(User.instance.getFields));
-    const data = {};
-    console.log(res)
-    console.log(req.query);
-    fields.forEach(item => data[item] = req.body[item]);
+ 
+  //Register
+  app.route('/api/user/new').post(async (req, res) => {
+    if(!req || !req.body) res.status(500).send("Request inválido!");
+    
+    const data: IUser = {...req.body as IUser};
 
     try{
-      User.instance.inserirNaTabela([data]);
-      res.sendStatus(200);
+      const id = await User.instance.inserirNaTabela([data]);      
+      const token = User.instance.generateToken({id: id[0]});
+
+      res.status(200).json({auth: true, token});
     }
     catch(e){
-      res.sendStatus(500);
+      res.status(500).send(e.message);
     }
   });
+
+  //Authentication
+  app.route('/api/user')
+  .get(async (req, res) => {
+    const response = User.instance.auth(req);
+    if(response.error) return res.status(500).send(response);
+
+    const user = await User.instance.getByField({field: "id", value: response.auth["id"]});
+    if(!user) res.status(404).send("Usuário não encontrado!");
+    user.senha = undefined;
+
+    response.auth = {...response.auth, ...user[0]};
+    res.status(200).json(response);
+  })
+  .post(async (req, res) => {
+    try{
+      let user = await User.instance.getByField({field: "email", value: req.body.email});
+      user = user[0]; //Não pode fazer isso quando usando o await
+      
+      if(!user) return res.status(404).send("Usuário não encontrado!");
+
+      const validPass = bcrypt.compareSync(req.body.senha, user.senha);
+      if(!validPass) return res.status(401).json({auth: false, token: null});
+
+      const token = User.instance.generateToken({id: user.id});
+      res.status(200).json({auth: true, token});
+    }
+    catch(e){
+      res.status(404).send("Usuário não encontrado!");
+      console.error(e);
+    }
+  });
+
 }

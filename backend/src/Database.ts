@@ -1,7 +1,6 @@
 import { Card, Set, Banlist, BanCard, SetCard, User } from './models';
 import { mysql, app } from './index';
 import setUpRoutes from './routes';
-import * as env from '../env';
 
 /**
 * Aqui onde as models são chamadas.
@@ -28,13 +27,13 @@ export async function generateBD(){
 * Cria a conexão com o banco de dados e inicia o servidor.
 */
 export function conectarBD(callback: () => void): any{
-  let porta = env.API_PORT || 8080;
+  let porta = process.env.API_PORT || 8080;
 
   var con = mysql.createConnection({
-    host:     env.DB_HOST     || 'localhost',
-    user:     env.DB_USER     || 'root',
-    password: env.DB_PASSWORD || '1234',
-    database: env.DB_NAME     || 'ygo-catalog'
+    host:     process.env.DB_HOST     || 'localhost',
+    user:     process.env.DB_USER     || 'root',
+    password: process.env.DB_PASSWORD || '1234',
+    database: process.env.DB_NAME     || 'ygo-catalog'
   });
   con.connect((err) => {
     if(err) throw err;

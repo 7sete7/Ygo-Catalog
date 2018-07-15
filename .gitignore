@@ -1,14 +1,20 @@
-# See https://help.github.com/ignore-files/ for more about ignoring files.
+
+# VS Code request files
+*.http
 
 # dependencies
-/node_modules
+node_modules/
 
 # testing
-/coverage
+coverage/
+
+#enviroment
+.env
 
 # production
 build/
 docs/
+bin/
 
 # misc
 .DS_Store

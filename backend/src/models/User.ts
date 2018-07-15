@@ -1,4 +1,7 @@
 import { Model } from './Model';
+import IUser     from '../interfaces/IUser';
+import jwt =     require('jsonwebtoken');
+import bcrypt =  require('bcryptjs');
 
 export class User extends Model {
 
@@ -26,8 +29,9 @@ export class User extends Model {
     return this.fields;
   }
 
-  public inserirNaTabela(itens: object[]): void{
-    return super.inserirNaTabela(itens);
+  public inserirNaTabela(itens: IUser[]): Promise<string[]>{
+    const encryptedUsers = this.encrypt(itens);
+    return super.inserirNaTabela(encryptedUsers);       
   }
 
   public seed(): Promise<any>{
@@ -36,5 +40,40 @@ export class User extends Model {
 
   public migrate(): Promise<any>{
     return super.migrar();
+  }
+
+  private encrypt(itens: IUser[]): IUser[] {
+    let response: IUser[]  = itens.map(item => {
+      const encyptedPass = bcrypt.hashSync(item.senha, 8);
+      const user = item;
+      user.senha = encyptedPass;
+      return user;
+    });
+
+    return response;
+  }
+
+  public generateToken({ id, expira }:{id: string, expira?: number}): string{
+    const expiresIn = expira || 86400; //24 horas    
+    return jwt.sign({id}, process.env.SECRET, {expiresIn});
+  }
+
+  public auth(request): {error: boolean, message: string, auth: object}{
+    const token = request.headers["x-access-token"];
+    let  response = { error: false, message: "", auth: {} };
+
+    if(!token) response = this.deuErro("Token não existe. ");
+
+    jwt.verify(token, process.env.SECRET, (err, result) => {
+      if(err) response = this.deuErro("Erro autenticano o token");
+
+      response.auth = result;
+    });
+
+    return response;
+  }
+
+  private deuErro(msg: string){
+    return {error: true, message: msg, auth: null};
   }
 }

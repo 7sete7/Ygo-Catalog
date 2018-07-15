@@ -1,6 +1,8 @@
 import { con } from '../index';
 import * as rp from 'request-promise';
 import { Card } from './Card';
+import { resolve } from 'url';
+import { clearInterval } from 'timers';
 /**
 * Super classe que todas as models descenderão.
 */
@@ -96,18 +98,6 @@ export abstract class Model
     });
   }
 
-  // public insert(income: object): Promise<boolean>{
-  //   const campos: string[] = [].concat(...Object.values(this.fields));
-  //   const data = {};
-  //
-  //   fields.forEach(item => data[item] = income[item]);
-  //   let query = `INSERT INTO '${this.tableName}' (${this.arrayDosCampos()}) VALUES (?)`;
-  //
-  //   return new Promise((resolve, reject) => {
-  //     con.query(query, [data])
-  //   });
-  // }
-
   /**
   * Cria a tabela no banco de dados,
   * Usa a variável fields das classes filhas.
@@ -181,7 +171,7 @@ export abstract class Model
 
       this.request(`${this.baseUrl}/${this.detailUrl}?name=${nome}`)
         .then(body => {
-          let arr = this.arrayDosCampos;
+          let arr = this.arrayDosCampos();
           this.fnGetItens({body, arr});
           this.pegarAsCartas();
         })
@@ -196,26 +186,35 @@ export abstract class Model
 * Insere dados na tabela
 * @param {string[]} arrayDosCampos - Array contendo o nome dos campos a ser usado.
 * @param {object[]} itens - Array de objetos contento os dados a serem inseridos.
+* @returns Array de ids inseridos
 */
-  protected inserirNaTabela(itens: object[]): void
+  protected inserirNaTabela(itens: object[]): Promise<string[]>
   {
     //Testa se tem 'none', '?', ' ', ''.
-    let regex = new RegExp(/^\s?none\s?$|\?|^\s+$|^$/g);
+    const regex = new RegExp(/^\s?none\s?$|\?|^\s+$|^$/g);
+    const ids: string[] = [];
 
     itens.forEach(async (item, i) => {
       let values = await this.con.escape(Object.keys(item).map(key => {
         return item[key] && !regex.test(item[key]) ? item[key] : null;
       }));
 
-      await this.con.query(`
+      this.con.query(`
         INSERT INTO ${this.tableName} (${this.arrayDosCampos().join(', ')})
         VALUES (${values})`,
-        err => {
-          if(err) return console.error(`Erro no insert!\n> ${err}`);
+        (err, result) => {
+          if(err) return console.error(`Erro no insert!\n> ${err}`);          
+          ids.push(result.insertId);
         }
       );
     });
     console.log(`Tabela ${this.tableName} semeada com aproximadamente ${itens.length} registros!`);
+
+    return new Promise(resolve => {
+      let id = setInterval(() => {
+        if(ids.length == itens.length){resolve(ids); clearInterval(id);}
+        }, 100);
+    });
   }
 
   protected request(url: string = null): Promise<any>{

@@ -1,19 +1,24 @@
 {
-  "name": "Api",
+  "name": "API",
   "version": "1.0.0",
   "description": "Yugioh API",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "start": "tsc && node -r dotenv/config index dotenv_config_path=../.env"
+  },
   "keywords": [
     "ygo"
   ],
   "author": "Leonardo",
   "license": "MIT",
   "dependencies": {
+    "@types/node": "^10.5.2",
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.2",
     "cli-progress": "^1.8.0",
     "dotenv": "^6.0.0",
     "express": "^4.16.2",
+    "jsonwebtoken": "^8.3.0",
     "mysql": "^2.15.0",
     "request": "^2.85.0",
     "request-promise": "^4.2.2",
