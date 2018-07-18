@@ -1,7 +1,6 @@
-import { con } from '../index';
-import * as rp from 'request-promise';
-import { Card } from './Card';
-import { resolve } from 'url';
+import {      con      } from '../index';
+import      * as rp      from 'request-promise';
+import {     Card      } from './Card';
 import { clearInterval } from 'timers';
 /**
 * Super classe que todas as models descenderão.
@@ -16,7 +15,6 @@ export abstract class Model
     current: 0
   }
   protected todosItems: object[] = [];
-  private url : string;
   protected abstract detailUrl: string;
   protected abstract allUrl: string;
 
@@ -76,13 +74,19 @@ export abstract class Model
   * @return {object} O objeto representado o registro da tabela,
   * retorna um objeto vazio se não encontrar.
   */
-  public getByField({field, value, limit = 1, orderBy = null}): Promise<any>{
-    let query = `${this.SELECTALL}
-        ${value  ? `WHERE ${field} IN (${(Array.isArray(value)? value : Array.of(value))
-          .map(v=>`'${v}'`).join()})`: ""
-        }
+  public getByField(
+      {field, value, limit, orderBy = null, select = "*"}:
+      {field: string, value: any | any[], limit?: number, orderBy?: string, select?: string}
+  ): Promise<any>{
+    
+    let query = `
+         SELECT ${select.split(",").map(i => `${this.tableName}.${i.trim()}`).join()} FROM ${this.tableName}
+         WHERE ${this.tableName}.${field} IN (
+           ${(Array.isArray(value)? value : Array.of(value)).map(v=>`'${v}'`).join()}
+         )
         ${orderBy? `WHERE ${orderBy.split(/\s/)[0]} IS NOT NULL ORDER BY ${orderBy}`: ""}
-        LIMIT ${limit || 1}`;
+        ${limit? `LIMIT ${limit}` : ""}`;
+
         console.log(query);
     return new Promise((resolve, reject) => {
       con.query(query, (err, result) => {
@@ -93,7 +97,26 @@ export abstract class Model
         catch(e){ return reject(e); }
 
         res = this.formatDate(res);
+        if("senha" in res[0]) res[0]["senha"] = undefined;
+
         resolve(res);
+      });
+    });
+  }
+
+    /**
+   * Faz o update da tabela no banco de dados
+   * @param {string} where - String de comparação para pegar a(s) row(s) selecionadas
+   * @param {object} values - Valores a serem alterados
+   */
+  protected update({where, values}: {where: string, values: {[key: string]: string}}): Promise<any> {
+    const set = [].concat(...Object.entries(values).map(arr => arr.join(" = "))).join(); 
+    //Transforma o values em 'chave' = 'valor' 
+    
+    return new Promise((resolve, reject) => {
+      this.con.query(`UPDATE ${this.tableName} SET ${set} WHERE ${where}`, (err, result) => {
+        if(err) reject(err);
+        else    resolve(result);
       });
     });
   }
@@ -104,11 +127,12 @@ export abstract class Model
   * Sintaxe:
   * key => {string} Representa o tipo e opções do campo, como null ou tamanho.
   * value => {string[]} Um nome de campo em cada posição.
+  * @param {string} adcional - String a ser adcionada no final da query
   */
-  protected migrar(): Promise<any> {
+  protected migrar(adcional: string = null): Promise<any> {
     return new Promise(resolve => {
 
-      let query = this.generateQuery();
+      let query = this.generateQuery() + adcional;
 
       con.query(`SHOW TABLES FROM \`ygo-catalog\` LIKE '${this.tableName}'`, (err, result) => {
         if(err) return console.error(err);
@@ -223,8 +247,8 @@ export abstract class Model
 
     return new Promise((resolve, reject) => {
       this.rp(op)
-      .then(res => resolve(res))
-      .catch(e => reject(e));
+       .then(resolve)
+       .catch(reject);
     });
   }
 
@@ -240,7 +264,7 @@ export abstract class Model
       try{
         let {name, id, ...resto} = opc;
         let names = cartas.map(card => card["card_name"]);
-        let as = await Card.instance.getByField({field: "name", value: names, limit: 999});
+        let as = await Card.instance.getByField({field: "name", value: names});
         let cards: object[] = [];
 
         await as.forEach(({id: card, name: nomeCarta}) => {
@@ -307,7 +331,7 @@ export abstract class Model
         query +=`FOREIGN KEY (\`${this.fields["fk"][item]}\`) REFERENCES ${this.fields["fk"][item]}s(id), `;
     else
       query = `id int NOT NULL AUTO_INCREMENT, PRIMARY KEY (id), ${query}`;
-
+    
     return query;
   }
 

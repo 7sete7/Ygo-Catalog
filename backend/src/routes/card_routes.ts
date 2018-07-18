@@ -5,7 +5,7 @@ export default () => {
   const table = 'cards';
 
   //Get all cards
-  app.route('/api/cards/get_all').get(async (req, res) => {
+  app.route('/api/v1/cards/get_all').get(async (req, res) => {
     Card.instance.all(req.query.orderBy || null)
     .then(cards => res.status(200).json(cards))
     .catch(e => res.sendStatus(500));
@@ -13,7 +13,7 @@ export default () => {
 
   //Exemplo: /api/cards?orderBy=attack%20asc&limit=20
   //Pega as 20 cartas com maior attack
-  app.route('/api/cards/:field?/:value?').get(async (req, res) => {
+  app.route('/api/v1/cards/:field?/:value?').get(async (req, res) => {
 
     Card.instance.getByField({
       field:   req.params.field    || null,

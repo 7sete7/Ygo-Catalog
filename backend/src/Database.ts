@@ -1,4 +1,4 @@
-import { Card, Set, Banlist, BanCard, SetCard, User } from './models';
+import { Card, Set, Banlist, BanCard, SetCard, User, UserDeck } from './models';
 import { mysql, app } from './index';
 import setUpRoutes from './routes';
 
@@ -12,8 +12,10 @@ export async function generateBD(){
   let banCard: BanCard  = BanCard.instance;
   let setCard: SetCard  = SetCard.instance;
   let user:    User     = User.instance;
+  let userDk:  UserDeck = UserDeck.instance;
 
-  let migrates = [card.migrate(), set.migrate(), bn.migrate(), banCard.migrate(), setCard.migrate(), user.migrate()];
+  let migrates = [card.migrate(), set.migrate(), bn.migrate(),
+                banCard.migrate(), setCard.migrate(), user.migrate(), userDk.migrate()];
   await Promise.all(migrates);
 
   let seeds = [card.seed(), bn.seed(), set.seed()];
@@ -21,6 +23,8 @@ export async function generateBD(){
 
   let dependentes = [banCard.seed(), setCard.seed()];
   await Promise.all(dependentes);
+
+  UserDeck.instance.getCards(1);
 }
 
 /**
