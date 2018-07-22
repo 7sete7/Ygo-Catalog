@@ -1,8 +1,18 @@
 import React, { Component } from 'react';
 import { Button, Card, CardBody, CardGroup, Col, Container, Input, InputGroup, InputGroupAddon, InputGroupText, Row } from 'reactstrap';
 import { Link } from 'react-router-dom';
+import { AuthService } from '../../Components/AuthService';
 
 class Login extends Component {
+  constructor(props){
+    super(props);
+    this.state = {};
+    this.Auth = new AuthService();
+
+    this.handleChange = this.handleChange.bind(this);
+    this.submit = this.submit.bind(this);
+  }
+
   render() {
     return (
       <div className="app flex-row align-items-center">
@@ -14,30 +24,30 @@ class Login extends Component {
                   <CardBody>
                     <h1>Login</h1>
                     <p className="text-muted">Sign In to your account</p>
-                    <InputGroup className="mb-3">
-                      <InputGroupAddon addonType="prepend">
-                        <InputGroupText>
-                          <i className="icon-user"></i>
-                        </InputGroupText>
-                      </InputGroupAddon>
-                      <Input type="text" placeholder="Username" />
-                    </InputGroup>
-                    <InputGroup className="mb-4">
-                      <InputGroupAddon addonType="prepend">
-                        <InputGroupText>
-                          <i className="icon-lock"></i>
-                        </InputGroupText>
-                      </InputGroupAddon>
-                      <Input type="password" placeholder="Password" />
-                    </InputGroup>
-                    <Row>
-                      <Col xs="6">
-                        <Button color="primary" className="px-4">Login</Button>
-                      </Col>
-                      <Col xs="6" className="text-right">
-                        <Button color="link" className="px-0">Forgot password?</Button>
-                      </Col>
-                    </Row>
+                      <InputGroup className="mb-3">
+                        <InputGroupAddon addonType="prepend">
+                          <InputGroupText>
+                            <i className="icon-user"></i>
+                          </InputGroupText>
+                        </InputGroupAddon>
+                        <Input type="text" placeholder="Email" id="email" onChange={this.handleChange}/>
+                      </InputGroup>
+                      <InputGroup className="mb-4">
+                        <InputGroupAddon addonType="prepend">
+                          <InputGroupText>
+                            <i className="icon-lock"></i>
+                          </InputGroupText>
+                        </InputGroupAddon>
+                        <Input type="password" placeholder="Password" id="senha" onChange={this.handleChange}/>
+                      </InputGroup>
+                      <Row>
+                        <Col xs="6">
+                          <Button color="primary" className="px-4" id="submit" onClick={this.submit}>Login</Button>
+                        </Col>
+                        <Col xs="6" className="text-right">
+                          <Button color="link" className="px-0">Forgot password?</Button>
+                        </Col>
+                      </Row>
                   </CardBody>
                 </Card>
                 <Card className="text-white bg-primary py-5 d-md-down-none" style={{ width: 44 + '%' }}>
@@ -58,6 +68,13 @@ class Login extends Component {
     );
   }
 
-}
+  handleChange(e){
+    this.setState({ [e.target.id]: e.target.value });
+  }
 
+  submit(){
+    this.Auth.logIn(this.state);
+  }
+
+}
 export default Login;

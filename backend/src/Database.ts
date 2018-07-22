@@ -23,8 +23,6 @@ export async function generateBD(){
 
   let dependentes = [banCard.seed(), setCard.seed()];
   await Promise.all(dependentes);
-
-  UserDeck.instance.getCards(1);
 }
 
 /**

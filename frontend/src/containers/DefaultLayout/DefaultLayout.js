@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
-import { Redirect, Route, Switch } from 'react-router-dom';
-import { Container } from 'reactstrap';
+import React, { Component } from "react";
+import { Redirect, Route, Switch } from "react-router-dom";
+import { Container } from "reactstrap";
 
 import {
   AppAside,
@@ -12,26 +12,19 @@ import {
   AppSidebarForm,
   AppSidebarHeader,
   AppSidebarMinimizer,
-  AppSidebarNav,
-} from '@coreui/react';
+  AppSidebarNav
+} from "@coreui/react";
 
-import navigation from '../../_nav';
+import navigation from "../../_nav";
 
-import routes from '../../routes';
-import DefaultAside from './DefaultAside';
-import DefaultFooter from './DefaultFooter';
-import DefaultHeader from './DefaultHeader';
-//============================================
-import Slider from '../../Components/Slider';
-import CardInfo from '../../Components/CardInfo';
+import routes from "../../routes";
+import DefaultAside from "./DefaultAside";
+import DefaultFooter from "./DefaultFooter";
+import DefaultHeader from "./DefaultHeader";
 
 class DefaultLayout extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
-    this.state = { cardInfoCard: null, initialCard: null };
-
-    this.onImageClick = this.onImageClick.bind(this);
-    this.initial = this.initial.bind(this);
   }
 
   render() {
@@ -49,16 +42,20 @@ class DefaultLayout extends Component {
             <AppSidebarMinimizer />
           </AppSidebar>
           <main className="main">
-            <AppBreadcrumb appRoutes={routes}/>
+            <AppBreadcrumb appRoutes={routes} />
             <Container fluid>
               <Switch>
                 {routes.map((route, idx) => {
-                    return route.component ? (<Route key={idx} path={route.path} exact={route.exact} name={route.name} render={props => (
-                        <route.component {...props} />
-                      )} />)
-                      : (null);
-                  },
-                )}
+                  return route.component ? (
+                    <Route
+                      key={idx}
+                      path={route.path}
+                      exact={route.exact}
+                      name={route.name}
+                      render={props => <route.component {...props} />}
+                    />
+                  ) : null;
+                })}
                 <Redirect from="/" to="/dashboard" />
               </Switch>
             </Container>
@@ -74,13 +71,19 @@ class DefaultLayout extends Component {
     );
   }
 
-  onImageClick(e, data){
-    this.setState({ cardInfoCard: data });
-  }
+  //<Redirect from="/" to="/dashboard" />
 
-  initial(data){
-    this.setState({ initialCard: data });
-  }
+  // {routes.map((route, idx) => {
+  //   return route.component ? (
+  //     <Route
+  //       key={idx}
+  //       path={route.path}
+  //       exact={route.exact}
+  //       name={route.name}
+  //       render={props => <route.component {...props} />}
+  //     />
+  //   ) : null;
+  // })}
 }
 
 export default DefaultLayout;

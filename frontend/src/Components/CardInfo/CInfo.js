@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Container, Alert, Card, CardBody, CardFooter, CardHeader, CardImg, Fade } from 'reactstrap';
-import conf from '../../config.js';
 
 import './Style.css';
 

@@ -23,10 +23,10 @@ import { IUser } from '../interfaces';
         const token = request.headers["x-access-token"];
         let  response = { error: false, message: "", auth: {} };
 
-        if(!token) response = deuErro("Token não existe. ");
+        if(!token) return response = deuErro("O token deve ser enviado!");
 
         jwt.verify(token, process.env.SECRET, (err, result) => {
-            if(err) response = this.deuErro("Erro autenticano o token");
+            if(err) {response = deuErro("Erro autenticano o token"); console.log(err);}
 
             response.auth = result;
         });

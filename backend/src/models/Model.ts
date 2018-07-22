@@ -97,7 +97,6 @@ export abstract class Model
         catch(e){ return reject(e); }
 
         res = this.formatDate(res);
-        if("senha" in res[0]) res[0]["senha"] = undefined;
 
         resolve(res);
       });

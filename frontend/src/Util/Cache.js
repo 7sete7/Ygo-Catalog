@@ -1,7 +1,10 @@
 export default class Cache
 {
-  constructor(){
-    this.cache = {};
+  cache = {};
+  static _instance;
+
+  static get instance(){
+    return this._instance || (this._instance = new Cache());
   }
 
   add({key, value, time}){
